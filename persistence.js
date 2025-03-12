@@ -1,4 +1,4 @@
-const users = []; 
+const users = [];
 
 async function saveUser(user) {
     users.push(user);
@@ -9,4 +9,7 @@ async function findUserByEmail(email) {
     return users.find(user => user.email === email);
 }
 
-module.exports = { saveUser, findUserByEmail };
+module.exports = {
+    saveUser,
+    findUserByEmail
+};
