@@ -5,47 +5,32 @@ const business = require('./business.js');
 const path = require('path');
 const app = express();
 
-// Middleware
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
 
-// Routes
-app.post('/register', async (req, res) => {
-    try {
-        const result = await business.registerUser(req.body.name, req.body.email, req.body.password);
-        res.json(result);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+//app.get('/', (req, res) => {
+   // res.sendFile(path.join(__dirname, 'dist', 'register.html'));
+//});
+
+app.get('/register', async (req, res) => {
+    const user = await business.registerUser(req.body);
+    if (!user) {
+        return res.status(400).send('User registration failed');
     }
+    res.status(201).send('User registered successfully');
 });
 
-app.post('/login', async (req, res) => {
-    try {
-        const user = await business.loginUser(req.body.email, req.body.password);
-        res.json({ message: 'Login successful', role: user.role });
-    } catch (error) {
-        res.status(401).json({ message: error.message });
+app.post('/verify', async (req, res) => {
+    const result = await business.verifyUserEmail(req.body.email);
+    if (!result) {
+        return res.status(400).send('Email verification failed');
     }
+    res.status(200).send('Email verified successfully');
 });
 
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'register.html'));
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'login.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'dashboard.html'));
-});
 
 
 app.listen(8000, () => console.log('Server running on port 8000'));
-

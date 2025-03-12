@@ -1,18 +1,18 @@
 const persistence = require('./persistence.js');
 
-async function registerUser(name, email, password) {
-    if (!name || !email || !password) {
-        throw new Error('All fields are required');
+
+async function registerUser(user) {
+    const existingUser = await persistence.findUserByEmail(user.email);
+    if (existingUser) {
+        return { message: 'User already exists' };
     }
-    return await persistence.saveUser({ name, email, password });
+    const result = await persistence.saveUser(user);
+    return result;
 }
 
-async function loginUser(email, password) {
-    const user = await persistence.findUserByEmail(email);
-    if (!user || user.password !== password) {
-        throw new Error('Invalid credentials');
-    }
-    return user;
+async function verifyUserEmail(email) {
+    const result = await persistence.updateUserVerification(email);
+    return result;
 }
 
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, verifyUserEmail };
