@@ -14,7 +14,6 @@ async function connectDatabase() {
 }
 
 
-
 async function saveUser(user) {
     const db = await connectDatabase();
     await db.collection('users').insertOne(user);
@@ -43,3 +42,5 @@ module.exports = {
     findUserByEmail, 
     updateUserVerification
 };
+
+

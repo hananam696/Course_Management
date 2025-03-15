@@ -10,10 +10,10 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'register.html'));
+});
 
-//app.get('/', (req, res) => {
-   // res.sendFile(path.join(__dirname, 'dist', 'register.html'));
-//});
 
 app.get('/register', async (req, res) => {
     const user = await business.registerUser(req.body);
@@ -23,7 +23,7 @@ app.get('/register', async (req, res) => {
     res.status(201).send('User registered successfully');
 });
 
-app.post('/verify', async (req, res) => {
+app.post('/reegister', async (req, res) => {
     const result = await business.verifyUserEmail(req.body.email);
     if (!result) {
         return res.status(400).send('Email verification failed');
