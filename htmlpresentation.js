@@ -18,17 +18,17 @@ app.get('/', (req, res) => {
 app.get('/register', async (req, res) => {
     const user = await business.registerUser(req.body);
     if (!user) {
-        return res.status(400).send('User registration failed');
+        return res.status(404).send('User registration failed');
     }
-    res.status(201).send('User registered successfully');
+    res.status(404).send('User registered successfully');
 });
 
-app.post('/reegister', async (req, res) => {
-    const result = await business.verifyUserEmail(req.body.email);
+app.post('/register', async (req, res) => {
+    const result = await business.updateApproval(req.body.contactInformation);
     if (!result) {
-        return res.status(400).send('Email verification failed');
+        return res.status(404).send('Contact information verification failed');
     }
-    res.status(200).send('Email verified successfully');
+    res.status(404).send('Contact information verified successfully');
 });
 
 
