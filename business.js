@@ -1,67 +1,37 @@
 const persistence = require('./persistence');
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 
-async function checkLogin(name, contactInformation) {
-    const users = await persistence.getUserDetails(name);
-    if (users.length > 0) {
-        const user = users[0];
-        if (user.contactInformation === contactInformation) {
-            return user.data.degree;
-        }
-    }
-    return undefined;
+// Email validation function using regex
+function isValidEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
 }
 
+async function registerUser(name, email, password) {
+    if (!isValidEmail(email)) throw new Error('Invalid email format');
 
-async function getUser(name) {
-    const users = await persistence.getUserDetails(name);
-    return users.length > 0 ? users[0] : null;  // Return the first user or null if not found
+    const user = await persistence.findUserByEmail(email);
+    if (user) throw new Error('Email already exists');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const activationCode = uuidv4();
+
+    return persistence.createUser({ name, email, password: hashedPassword, activationCode, active: false });
 }
 
-async function updateUser(uid, newUid) {
-    return await persistence.updateUser(uid, newUid);
+async function activateUser(email, activationCode) {
+    return persistence.activateUser(email, activationCode);
 }
 
-async function findUserById(uid) {
-    return await persistence.findUserById(uid);
+async function loginUser(email, password) {
+    const user = await persistence.findUserByEmail(email);
+    if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error('Invalid credentials');
+
+    return user;
 }
 
-async function registerUser(name, contactInformation, degree= "Unknown") {
-    return await persistence.registerUser(name, contactInformation, degree);
-}
-
-//DRAFTTTTTTTTTTTTTTTTTTTT
-//login
-// Function to hash passwords using SHA-256
-function hashPassword(password) {
-    return crypto.createHash('sha256').update(password).digest('hex');
-  }
-
-  async function verifyLogin(email, password) {
-    try {
-      // Step 1: Find the user by email
-      const user = await persistence.findUserByEmail(email);
-      if (!user) {
-        throw new Error('User not found'); // User does not exist
-      }
-
-      // Step 2: Hash the provided password and compare it with the stored hash
-      const hashedPassword = persistence.hashPassword(password);
-      if (hashedPassword !== user.password) {
-        throw new Error('Invalid password'); // Password does not match
-      }
-
-      // Step 3: Create a new object without the password
-      const userWithoutPassword = {
-        name: user.name,
-        email: user.email,
-        degree: user.degree
-      };
-
-      // Step 4: Return the user object (without the password)
-      return userWithoutPassword;
-    } catch (error) {
-      throw error; // Propagate the error to the presentation layer
-    }
-  }
-module.exports = { checkLogin, getUser, updateUser, findUserById, registerUser, hashPassword, verifyLogin };
+module.exports = { registerUser, activateUser, loginUser };
