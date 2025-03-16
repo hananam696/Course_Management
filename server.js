@@ -1,16 +1,22 @@
-require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const presentation = require('./presentation');
 
+dotenv.config();
 const app = express();
+
+mongoose.connect(process.env.MONGO_URI, {https://github.com/amna0712/Web2Project/blob/main/server.js
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log(err));
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(express.static('public'));
-
-app.use('/auth', presentation);
+app.use('/auth', presentation);  //  
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
