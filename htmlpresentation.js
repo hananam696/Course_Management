@@ -14,6 +14,26 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'register.html'));
 });
 
+// Serve the login page
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'login.html'));
+});
+
+// Handle login form submission
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Step 1: Verify the login credentials
+        const user = await business.verifyLogin(email, password);
+
+        // Step 2: If valid, redirect to the dashboard or home page
+        res.status(200).send('Login successful! Welcome, ' + user.name);
+    } catch (error) {
+        // Step 3: If invalid, show an error message
+        res.status(400).send(error.message);
+    }
+});
 
 app.get('/register', async (req, res) => {
     const user = await business.registerUser(req.body);
