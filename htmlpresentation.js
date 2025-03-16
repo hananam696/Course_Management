@@ -35,6 +35,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
 app.get('/register', async (req, res) => {
     const user = await business.registerUser(req.body);
     if (!user) {
