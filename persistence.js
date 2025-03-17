@@ -1,18 +1,16 @@
 const { MongoClient } = require("mongodb");
- 
- let client;
+
+
  const uri = "mongodb+srv://60105921:Aamna.0712@amna.aixug.mongodb.net/";
- 
- 
+ let client = undefined;
+
  async function connectDatabase() {
      if (!client) {
          client = new MongoClient(uri);
          await client.connect();
-         console.log("Database connected");
      }
-     return client.db("CourseManagementSystem");
  }
- 
+
 
 async function createUser(userData) {
     const user = new User(userData);
