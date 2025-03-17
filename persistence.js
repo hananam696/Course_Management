@@ -1,14 +1,18 @@
-const mongoose = require('mongoose');
-
-const UserSchema = new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true },
-    password: String,
-    activationCode: String,
-    active: Boolean
-});
-
-const User = mongoose.model('User', UserSchema);
+const { MongoClient } = require("mongodb");
+ 
+ let client;
+ const uri = "mongodb+srv://60105921:Aamna.0712@amna.aixug.mongodb.net/";
+ 
+ 
+ async function connectDatabase() {
+     if (!client) {
+         client = new MongoClient(uri);
+         await client.connect();
+         console.log("Database connected");
+     }
+     return client.db("CourseManagementSystem");
+ }
+ 
 
 async function createUser(userData) {
     const user = new User(userData);
