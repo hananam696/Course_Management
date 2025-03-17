@@ -11,7 +11,7 @@ router.post('/register', async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
-
+///testing 
 router.post('/activate', async (req, res) => {
     try {
         const { email, activationCode } = req.body;
