@@ -1,17 +1,34 @@
+
 const express = require('express');
 const handlebars = require('express-handlebars');
 const bodyParser = require('body-parser');
-const business = require('./business.js');
+const business = require('./business');
 const path = require('path');
+
 const app = express();
 
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'dist')));
+
+// Handlebars setup
 app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 
-app.get('/', (req, res) => {
+// Serve the registration page
+app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'register.html'));
+});
+
+// Handle registration form submission
+app.post('/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        await business.registerUser(name, email, password);
+        res.status(201).json({ message: 'User registered. Check console for activation code.' });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 // Serve the login page
@@ -21,37 +38,25 @@ app.get('/login', (req, res) => {
 
 // Handle login form submission
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-
     try {
-        // Step 1: Verify the login credentials
-        const user = await business.verifyLogin(email, password);
-
-        // Step 2: If valid, redirect to the dashboard or home page
-        res.status(200).send('Login successful! Welcome, ' + user.name);
-    } catch (error) {
-        // Step 3: If invalid, show an error message
-        res.status(400).send(error.message);
+        const { email, password } = req.body;
+        await business.loginUser(email, password);
+        res.status(200).json({ message: 'Login successful' });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 
-
-app.get('/register', async (req, res) => {
-    const user = await business.registerUser(req.body);
-    if (!user) {
-        return res.status(404).send('User registration failed');
+// Handle account activation
+app.post('/activate', async (req, res) => {
+    try {
+        const { email, activationCode } = req.body;
+        await business.activateUser(email, activationCode);
+        res.status(200).json({ message: 'Account activated. You can now log in.' });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
-    res.status(404).send('User registered successfully');
 });
 
-app.post('/register', async (req, res) => {
-    const result = await business.updateApproval(req.body.contactInformation);
-    if (!result) {
-        return res.status(404).send('Contact information verification failed');
-    }
-    res.status(404).send('Contact information verified successfully');
-});
-
-
-
+// Start the server
 app.listen(8000, () => console.log('Server running on port 8000'));

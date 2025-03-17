@@ -1,7 +1,10 @@
+//SHIFT TO HTMLPRESENTATION.JS
+
 const express = require('express');
 const router = express.Router();
 const business = require('./business');
 
+const app = express();
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -11,7 +14,8 @@ router.post('/register', async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
-///testing 
+
+///testing
 router.post('/activate', async (req, res) => {
     try {
         const { email, activationCode } = req.body;
