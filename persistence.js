@@ -20,7 +20,7 @@ async function createUser(userData) {
 }
 
 async function findUserByEmail(email) {
-    return User.findOne({ email });
+    return User.findOne({ email }); // find one not allowed in this project 
 }
 
 async function activateUser(email, activationCode) {
