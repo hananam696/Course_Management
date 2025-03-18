@@ -1,23 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link href="/css/style.css" rel="stylesheet"> <!-- Linking to your CSS -->
 </head>
 <body>
-    <h1>Register</h1>
-    <form action="/register" method="POST">
-        <label>Name:</label>
-        <input type="text" name="name" required><br>
+    <div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mb-4 mx-4">
+                        <div class="card-body p-4">
+                            <h1>Register</h1>
+                            <p class="text-medium-emphasis">Create your account</p>
 
-        <label>Email:</label>
-        <input type="email" name="email" required><br>
+                            <form action="/register" method="POST">
+                                <!-- Username Field -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="text" name="username" placeholder="Username" required>
+                                </div>
 
-        <label>Password:</label>
-        <input type="password" name="password" required><br>
+                                <!-- Email Field -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-envelope-open"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="email" name="email" placeholder="Email" required>
+                                </div>
 
-        <button type="submit">Register</button>
-    </form>
+                                <!-- Password Field -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="password" name="password" placeholder="Password" required>
+                                </div>
+
+                                <!-- Repeat Password Field -->
+                                <div class="input-group mb-4">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="password" name="repeatPassword" placeholder="Repeat Password" required>
+                                </div>
+
+                                <button class="btn btn-block btn-success" type="submit">Create Account</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
