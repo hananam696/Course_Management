@@ -20,21 +20,16 @@ async function registerUser(username, email, password) {  // Changed 'name' to '
     if (user) throw new Error('Email already exists');
 
     const hashedPassword = await computeHash(password); // Hash password
-   // const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
+    const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
 
-    //return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false }); 
-    return persistence.createUser({ username, email, password: hashedPassword }) // Changed 'name' to 'username'
+    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false }); 
+
 }
 
 // Activate user account
-/*
+
 async function activateUser(email, activationCode) {
     return persistence.activateUser(email, activationCode);
-}
-*/
-
-async function activateUser(email) {
-    return persistence.activateUser(email);
 }
 
 // Login a user

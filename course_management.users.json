@@ -16,7 +16,7 @@
   "email": "amna@gmail.com",
   "password": "8588310a98676af6e22563c1559e1ae20f85950792bdcd0c8f334867c54581cd",
   "activationCode": "c7dde104ba17319d36ea68215564512a",
-  "active": false
+  "active": true
 },
 {
   "_id": {
@@ -46,5 +46,5 @@
   "email": "amna@udst.com",
   "password": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
   "activationCode": "9f8dfbfbd966bb06c3b41ecfaa14810e",
-  "active": false
+  "active": true
 }]
