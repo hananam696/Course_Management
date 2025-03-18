@@ -53,12 +53,16 @@ app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await business.loginUser(email, password);
-        res.send('Login successful');
+        
+        // Redirect to home page on successful login
+        res.redirect('/');
+        
     } catch (err) {
         console.error(err);  // Log the error for debugging
         res.status(400).send(err.message);  // Send error message to the client
     }
 });
+
 
 // Activation POST
 app.post('/activate', async (req, res) => {
@@ -73,4 +77,4 @@ app.post('/activate', async (req, res) => {
 });
 
 // Start Server
-app.listen(8000, () => console.log('Server running on http://localhost:8000'));
+app.listen(8000, () => console.log('Server running on http://localhost:8000/login'));
