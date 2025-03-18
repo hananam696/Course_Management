@@ -9,8 +9,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 app.engine('handlebars', handlebars.engine());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); 
-app.use(cookieParser());
+//app.use(express.json()); 
+//app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));  
 
 // Home Route
