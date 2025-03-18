@@ -1,78 +1,36 @@
 const persistence = require('./persistence');
-const crypto = require("crypto"); // for hashing the mongodb required
-// used crypto insteaad of bcrypt
-// got the cryto and compute hash from our lecture code
+const crypto = require("crypto"); // for hashing the MongoDB required
 
-
-// async function computeHash(password) {
-//     let hash = crypto.createHash('sha256'); // Use SHA-256 hashing
-//     hash.update(password);
-//     let res = hash.digest('hex');
-//     return res;
-// }
-
+// Compute hash using SHA-256
 async function computeHash(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// TESTING THIS CODEWITHOUT USING NEW MODULE LIKE UUID
- function isValidEmail(email) {
+// Email validation function
+function isValidEmail(email) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
 }
 
-async function registerUser(name, email, password) {
+// Register a new user
+async function registerUser(username, email, password) {  // Changed 'name' to 'username'
     if (!isValidEmail(email)) throw new Error('Invalid email format');
 
     const user = await persistence.findUserByEmail(email);
     if (user) throw new Error('Email already exists');
 
     const hashedPassword = await computeHash(password); // Hash password
-    const activationCode = crypto.randomBytes(16).toString('hex');
+    const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
 
-    return persistence.createUser({ name, email, password: hashedPassword, activationCode, active: false });
+    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false });  // Changed 'name' to 'username'
 }
 
+// Activate user account
 async function activateUser(email, activationCode) {
     return persistence.activateUser(email, activationCode);
 }
 
-//UNCOMMENTED JUST FOR TESTING
-// const { v4: uuidv4 } = require('uuid');
-
-//  // Email validation function using regex
-//  function isValidEmail(email) {
-//      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-//      return emailRegex.test(email);
-//  }
-
-async function checkLogin(username, password) {
-    let details = await persistence.getUserDetails(username)
-
-    if (details && details.Username === username && details.Password === password) {
-        return details.AccountType
-    }
-    return undefined
-}
-
-
-
-// async function registerUser(name, email, password) {
-//     if (!isValidEmail(email)) throw new Error('Invalid email format');
-
-//     const user = await persistence.findUserByEmail(email);
-//     if (user) throw new Error('Email already exists');
-
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const activationCode = uuidv4();
-
-//     return persistence.createUser({ name, email, password: hashedPassword, activationCode, active: false });
-// }
-
-// async function activateUser(email, activationCode) {
-//     return persistence.activateUser(email, activationCode);
-// }
-
+// Login a user
 async function loginUser(email, password) {
     const user = await persistence.findUserByEmail(email);
     if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
@@ -80,9 +38,34 @@ async function loginUser(email, password) {
     const hashedPassword = await computeHash(password);
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
-    return user;
+    // Once logged in, create a session
+    const sessionKey = crypto.randomBytes(16).toString('hex'); // Generate session key
+    const sessionData = {
+        sessionKey,
+        user: {
+            email: user.email,
+            username: user.username  // Changed 'name' to 'username'
+        },
+    };
+    await persistence.updateSession(sessionKey, sessionData); // Store session in database
+
+    return sessionKey; // Return session key for future requests
 }
-module.exports = { registerUser, activateUser, loginUser };
 
+// Get session data by session key
+async function getSessionData(key) {
+    return await persistence.getSessionData(key);
+}
 
+// Delete session by session key
+async function deleteSession(key) {
+    return await persistence.deleteSession(key);
+}
 
+module.exports = {
+    registerUser,
+    activateUser,
+    loginUser,
+    getSessionData,
+    deleteSession
+};
