@@ -11,7 +11,7 @@ function computeHash(password) {
     return res;
 }
 
-// TESTING THIS CODE WITHOUT USING NEW MODULE LIKE UUID
+// TESTING THIS CODEWITHOUT USING NEW MODULE LIKE UUID
 function isValidEmail(email) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
