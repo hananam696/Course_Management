@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'dist')));  // Serve static files fr
 
 // Home Route
 app.get('/', (req, res) => {
-    res.render('home', { layout: false });  // Serve dynamic content using Handlebars
+    res.render('login', { layout: false });  // Serve dynamic content using Handlebars
 });
 
 // Register Route
