@@ -39,7 +39,9 @@ app.post('/register', async (req, res) => {
         const user = await business.registerUser(username, email, password);
 
         // Send response with activationCode
-        res.send(`User registered. Check your email for activation code. Code: ${user.activationCode}`);
+       // res.send(`User registered. Check your email for activation code. Code: ${user.activationCode}`);
+        res.send(`User registered. Check your email for activation code`);
+
     } catch (err) {
         console.error(err);  // Log the error for debugging
         res.status(400).send(err.message);  // Send error message to the client
