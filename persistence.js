@@ -85,8 +85,13 @@ async function deleteSession(sessionKey) {
     await connectDatabase();
     await sessionCollection.deleteOne({ sessionKey });
 }
-
+// Find a user by username
+async function findUserByUsername(username) {
+    await connectDatabase();
+    return db.collection("users").findOne({ username: username });
+}
 module.exports = {
+    findUserByUsername,
     createUser,
     findUserByEmail,
     activateUser,

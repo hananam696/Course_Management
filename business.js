@@ -13,6 +13,7 @@ function isValidEmail(email) {
 }
 
 // Register a new user
+/*
 async function registerUser(username, email, password) {  
     if (!isValidEmail(email)) throw new Error('Invalid email format');
     
@@ -25,6 +26,26 @@ async function registerUser(username, email, password) {
     // Ensure users are activated by default
     return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true }); 
 }
+    */
+   // Register a new user
+async function registerUser(username, email, password) {  
+    if (!isValidEmail(email)) throw new Error('Invalid email format');
+
+    // Check if email already exists
+    const existingEmail = await persistence.findUserByEmail(email);
+    if (existingEmail) throw new Error('Email already exists');
+
+    // Check if username already exists
+    const existingUser = await persistence.findUserByUsername(username);
+    if (existingUser) throw new Error('Username already taken. Choose a different username.');
+
+    const hashedPassword = await computeHash(password); // Hash password
+    const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
+
+    // Ensure users are activated by default
+    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true }); 
+}
+
 
 // Activate user account
 async function activateUser(email, activationCode) {
