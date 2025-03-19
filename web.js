@@ -9,8 +9,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 app.engine('handlebars', handlebars.engine());
 app.use(express.urlencoded({ extended: true }));
-//app.use(express.json()); 
-//app.use(cookieParser());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));  
 
 // Home Route
@@ -66,8 +65,6 @@ app.post('/login', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
-
-
 
 // Activation POST
 app.post('/activate', async (req, res) => {

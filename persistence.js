@@ -21,28 +21,14 @@ async function getDetails() {
     return db.collection("users").find().toArray();
 }
 
-// Create a user
-/*
 async function createUser(userData) {
     console.log('Creating user with data:', userData);
     await connectDatabase();
     const usersCollection = db.collection('users');
+    userData.active = false; // Ensure the user is activated upon creation
     await usersCollection.insertOne(userData);
     return userData;
 }
-    */
-async function createUser(userData) {
-    console.log('Creating user with data:', userData);
-    await connectDatabase();
-    const usersCollection = db.collection('users');
-
-    // Ensure the user is activated upon creation
-    userData.active = true;
-
-    await usersCollection.insertOne(userData);
-    return userData;
-}
-
 
 // Find user by email
 async function findUserByEmail(email) {
@@ -85,26 +71,12 @@ async function deleteSession(sessionKey) {
     await connectDatabase();
     await sessionCollection.deleteOne({ sessionKey });
 }
-// Find a user by username
-/*
+
 async function findUserByUsername(username) {
     await connectDatabase();
-    return db.collection("users").findOne({ username: username });
-}
-*/
-/*
-async function findUserByUsername(username) {
-    await connectDatabase();
-    const hashedUsername = await computeHash(username); // Hash before searching
-    return db.collection("users").findOne({ username: hashedUsername });
-}
-*/
-async function findUserByUsername(username) {
-    await connectDatabase();
-    return db.collection("users").findOne({ username: username }); // ✅ No hashing needed
+    return db.collection("users").findOne({ username: username }); 
 }
 
-   
 module.exports = {
     findUserByUsername,
     createUser,
