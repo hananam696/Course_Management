@@ -13,13 +13,21 @@
 ## Team Contributions
 
 ### Amna0712
-- Fixed session keys, edited code, and implemented redirection to the homepage after login.
-- Contributed to the registration page, user profile setup, and updating the presentation layer.
-- Made changes to the persistence layer and participated in the initial project setup.
+- Created persistence, business, web.js 
+- Contributed to the registration page
+- user profile setup
+- Fixed session keys 
+- implemented redirection to the homepage after login.
+- Made changes to the persistence layer and 
+- Created TTL for session key and set it to expire within 5 minutes
+- Crated activation.html and contributed to the activation code
+- Participated in the initial project setup
+- Editing the codes and comments
+- Modified the README file
 
 ### Raghad258
 - Implemented password hashing, session handling, and JSON file management.
-- Updated `server.js`, contributed to the login system, and modified the README documentation multiple times.
+- Updated `web.js`, contributed to the login system, and modified the README documentation multiple times.
 - Worked on structuring authentication and security features.
 
 ### Hananam696

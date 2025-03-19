@@ -33,25 +33,24 @@ async function loginUser(identifier, password) {
     if (identifier.includes('@')) {
         user = await persistence.findUserByEmail(identifier);
     } else {
-        user = await persistence.findUserByUsername(identifier); 
+        user = await persistence.findUserByUsername(identifier);
     }
 
     if (!user) throw new Error('Invalid credentials');
     if (!user.active) throw new Error('Account not activated. Please verify your email.');
-    // Hash and check the password
     const hashedPassword = await computeHash(password);
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
-    // Generate session key
-    const sessionKey = crypto.randomBytes(16).toString('hex'); 
+    const sessionKey = crypto.randomBytes(16).toString('hex');
     const sessionData = {
         sessionKey,
         user: {
             email: user.email,
-            username: user.username  
+            username: user.username
         },
+        expiry: new Date(Date.now() + 5 * 60 * 1000) // 5 minutes from now
     };
     await persistence.updateSession(sessionKey, sessionData);
-    return sessionKey; 
+    return sessionKey;
 }
 
 // Get session data by session key
@@ -71,3 +70,4 @@ module.exports = {
     getSessionData,
     deleteSession
 };
+

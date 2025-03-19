@@ -45,15 +45,30 @@ async function activateUser(email, activationCode) {
     return user;
 }
 
+/*
 // Get session data
 async function getSessionData(sessionKey) {
     await connectDatabase();
     return sessionCollection.findOne({ sessionKey });
 }
+*/
+
+// Get session data
+async function getSessionData(sessionKey) {
+    await connectDatabase();
+    const session = await sessionCollection.findOne({ sessionKey });
+    if (session && session.expiry > new Date()) {
+        return session;
+    }
+    return null; // Session expired or not found
+}
+
 
 // Update a session
 async function updateSession(sessionKey, sessionData) {
     await connectDatabase();
+    const expiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+    sessionData.expiry = expiry;
     await sessionCollection.replaceOne({ sessionKey }, sessionData, { upsert: true });
 }
 
@@ -71,6 +86,7 @@ async function deleteSession(sessionKey) {
     await connectDatabase();
     await sessionCollection.deleteOne({ sessionKey });
 }
+
 
 async function findUserByUsername(username) {
     await connectDatabase();
