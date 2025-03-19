@@ -3,33 +3,29 @@ const handlebars = require('express-handlebars');
 const business = require('./business');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-
 const app = express();
 
-// Set up Handlebars
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 app.engine('handlebars', handlebars.engine());
-
-// Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Needed for JSON body parsing
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'dist')));  // Serve static files from 'dist' folder
+//app.use(express.json()); 
+//app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'dist')));  
 
 // Home Route
 app.get('/', (req, res) => {
-    res.render('login', { layout: false });  // Serve dynamic content using Handlebars
+    res.render('login', { layout: false });  
 });
 
 // Register Route
 app.get('/register', (req, res) => {
-    res.render('register', { layout: false });  // Dynamic content rendering
+    res.render('register', { layout: false });  
 });
 
 // Login Route
 app.get('/login', (req, res) => {
-    res.render('login', { layout: false });  // Dynamic content rendering
+    res.render('login', { layout: false });  
 });
 
 // Register POST
@@ -37,14 +33,10 @@ app.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
         const user = await business.registerUser(username, email, password);
-
-        // Send response with activationCode
-       res.send(`User registered. Check your email for activation code. Code: ${user.activationCode}`);
-        
-
+        res.send(`User registered. Check your email for activation code. Code: ${user.activationCode}`);
     } catch (err) {
-        console.error(err);  // Log the error for debugging
-        res.status(400).send(err.message);  // Send error message to the client
+        console.error(err); 
+        res.status(400).send(err.message); // Send error message to the client
     }
 });
 
@@ -52,18 +44,22 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+<<<<<<< HEAD
         const user = await business.loginUser(email, password);
         
         // Redirect to home page on successful login
         res.redirect('/');
         
         
+=======
+        const user = await business.loginUser(email, password);    
+        res.redirect('/'); // Redirect to home page on successful login
+>>>>>>> 32ff00838748a5899d3539aa9ea7037020043ab5
     } catch (err) {
-        console.error(err);  // Log the error for debugging
-        res.status(400).send(err.message);  // Send error message to the client
+        console.error(err);  
+        res.status(400).send(err.message); // Send error message to the client
     }
 });
-
 
 // Activation POST
 app.post('/activate', async (req, res) => {
@@ -72,10 +68,9 @@ app.post('/activate', async (req, res) => {
         await business.activateUser(email, activationCode);
         res.send('Account activated. You can now log in.');
     } catch (err) {
-        console.error(err);  // Log the error for debugging
-        res.status(400).send(err.message);  // Send error message to the client
+        console.error(err); 
+        res.status(400).send(err.message); // Send error message to the client
     }
 });
 
-// Start Server
 app.listen(8000, () => console.log('Server running on http://localhost:8000/login'));
