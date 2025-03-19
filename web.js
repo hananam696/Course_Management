@@ -57,6 +57,7 @@ app.post('/login', async (req, res) => {
         // Redirect to home page on successful login
         res.redirect('/');
         
+        
     } catch (err) {
         console.error(err);  // Log the error for debugging
         res.status(400).send(err.message);  // Send error message to the client

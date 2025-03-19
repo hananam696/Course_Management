@@ -22,7 +22,9 @@ async function registerUser(username, email, password) {  // Changed 'name' to '
     const hashedPassword = await computeHash(password); // Hash password
     const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
 
-    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false }); 
+    //return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false });
+    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true }); 
+ 
 
 }
 
@@ -35,7 +37,10 @@ async function activateUser(email, activationCode) {
 // Login a user
 async function loginUser(email, password) {
     const user = await persistence.findUserByEmail(email);
-    if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
+    //if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
+    if (!user) throw new Error('Invalid credentials');
+    if (!user.active) throw new Error('Account not activated. Please verify your email.');
+
 
     const hashedPassword = await computeHash(password);
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');

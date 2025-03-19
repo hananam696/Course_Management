@@ -22,6 +22,7 @@ async function getDetails() {
 }
 
 // Create a user
+/*
 async function createUser(userData) {
     console.log('Creating user with data:', userData);
     await connectDatabase();
@@ -29,6 +30,19 @@ async function createUser(userData) {
     await usersCollection.insertOne(userData);
     return userData;
 }
+    */
+async function createUser(userData) {
+    console.log('Creating user with data:', userData);
+    await connectDatabase();
+    const usersCollection = db.collection('users');
+
+    // Ensure the user is activated upon creation
+    userData.active = true;
+
+    await usersCollection.insertOne(userData);
+    return userData;
+}
+
 
 // Find user by email
 async function findUserByEmail(email) {
