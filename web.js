@@ -41,6 +41,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Login POST
+/*
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -53,6 +54,19 @@ app.post('/login', async (req, res) => {
         res.status(400).send(err.message); // Send error message to the client
     }
 });
+*/
+app.post('/login', async (req, res) => {
+    try {
+        const { identifier, password } = req.body; // "identifier" can be email or username
+        const user = await business.loginUser(identifier, password);
+        
+        res.redirect('/');
+    } catch (err) {
+        console.error(err);  
+        res.status(400).send(err.message);
+    }
+});
+
 
 
 // Activation POST

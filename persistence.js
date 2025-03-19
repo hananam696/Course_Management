@@ -86,10 +86,25 @@ async function deleteSession(sessionKey) {
     await sessionCollection.deleteOne({ sessionKey });
 }
 // Find a user by username
+/*
 async function findUserByUsername(username) {
     await connectDatabase();
     return db.collection("users").findOne({ username: username });
 }
+*/
+/*
+async function findUserByUsername(username) {
+    await connectDatabase();
+    const hashedUsername = await computeHash(username); // Hash before searching
+    return db.collection("users").findOne({ username: hashedUsername });
+}
+*/
+async function findUserByUsername(username) {
+    await connectDatabase();
+    return db.collection("users").findOne({ username: username }); // ✅ No hashing needed
+}
+
+   
 module.exports = {
     findUserByUsername,
     createUser,
