@@ -44,22 +44,16 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-<<<<<<< HEAD
-        const user = await business.loginUser(email, password);
+        const user = await business.loginUser(email, password);    
         
         // Redirect to home page on successful login
         res.redirect('/');
-        
-        
-=======
-        const user = await business.loginUser(email, password);    
-        res.redirect('/'); // Redirect to home page on successful login
->>>>>>> 32ff00838748a5899d3539aa9ea7037020043ab5
     } catch (err) {
         console.error(err);  
         res.status(400).send(err.message); // Send error message to the client
     }
 });
+
 
 // Activation POST
 app.post('/activate', async (req, res) => {

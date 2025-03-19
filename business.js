@@ -1,4 +1,4 @@
-const persistence = require('./persistence');
+const persistence = require('./persistence'); 
 const crypto = require("crypto"); 
 
 // Compute hash using SHA-256
@@ -15,19 +15,15 @@ function isValidEmail(email) {
 // Register a new user
 async function registerUser(username, email, password) {  
     if (!isValidEmail(email)) throw new Error('Invalid email format');
+    
     const user = await persistence.findUserByEmail(email);
     if (user) throw new Error('Email already exists');
+
     const hashedPassword = await computeHash(password); // Hash password
     const activationCode = crypto.randomBytes(16).toString('hex'); // Generate activation code
-<<<<<<< HEAD
 
-    //return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false });
+    // Ensure users are activated by default
     return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true }); 
- 
-=======
-    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: false }); 
->>>>>>> 32ff00838748a5899d3539aa9ea7037020043ab5
-
 }
 
 // Activate user account
@@ -38,19 +34,14 @@ async function activateUser(email, activationCode) {
 // Login a user
 async function loginUser(email, password) {
     const user = await persistence.findUserByEmail(email);
-<<<<<<< HEAD
-    //if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
+    
     if (!user) throw new Error('Invalid credentials');
     if (!user.active) throw new Error('Account not activated. Please verify your email.');
 
-
-=======
-    if (!user || !user.active) throw new Error('Invalid credentials or account not activated');
->>>>>>> 32ff00838748a5899d3539aa9ea7037020043ab5
     const hashedPassword = await computeHash(password);
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
-    // Once logged in, create a session/
+    // Once logged in, create a session
     const sessionKey = crypto.randomBytes(16).toString('hex'); // Generate session key
     const sessionData = {
         sessionKey,
