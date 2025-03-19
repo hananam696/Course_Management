@@ -45,7 +45,7 @@ async function loginUser(email, password) {
     const hashedPassword = await computeHash(password);
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
-    // Once logged in, create a session
+    // Once logged in, create a session/
     const sessionKey = crypto.randomBytes(16).toString('hex'); // Generate session key
     const sessionData = {
         sessionKey,
