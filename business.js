@@ -82,9 +82,8 @@ async function activateUser(username, activationCode) {
 
 const ADMIN_USERNAME = "admin";
 const ADMIN_EMAIL = "admin@udst.com";
+
 async function loginUser(identifier, password) {
-    
-    
     let user;
     if (identifier.includes('@')) {
         user = await persistence.findUserByEmail(identifier);
@@ -119,8 +118,13 @@ async function loginUser(identifier, password) {
     await persistence.updateSession(sessionKey, sessionData);
     console.log(`Session created: ${sessionKey}`); // Debugging log
 
-    return sessionKey;
+    // Return both sessionKey and isAdmin
+    return {
+        sessionKey,
+        isAdmin, // Include isAdmin in the return object
+    };
 }
+
 // Retrieves session data using a session key
 async function getSessionData(key) {
     return await persistence.getSessionData(key);

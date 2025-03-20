@@ -115,15 +115,16 @@ app.get('/', (req, res) => {
     }
 });
 
+app.get('/login', (req, res) => res.render('login', { layout: false }));
 // Render the registration page
 app.get('/register', (req, res) => res.render('register', { layout: false }));
 
 // Render the activation page
 app.get('/activate', (req, res) => res.render('activate', { layout: false }));
 
-// Admin route for admin users
+
 app.get('/admin', (req, res) => {
-    res.render('admin', { layout: false, message: 'Welcome to the admin dashboard.' });
+    res.sendFile(path.join(__dirname, 'dist', 'admin.html'));
 });
 
 // Handle user registration
@@ -142,36 +143,35 @@ app.post('/register', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
-
-// Handle user login
 app.post('/login', async (req, res) => {
     try {
-      const { identifier, password } = req.body;
-      const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
+        const { identifier, password } = req.body;
+        const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
 
-      // Set the session key as a cookie
-      res.cookie('sessionKey', sessionKey, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Ensure cookies are only sent over HTTPS in production
-        maxAge: 5 * 60 * 1000, // Set cookie expiry to 5 minutes
-      });
+        console.log('isAdmin:', isAdmin); // Debugging: Check the value of isAdmin
 
-      // Determine the redirect URL based on whether the user is an admin
-      const redirectUrl = isAdmin ? '/admin' : '/admin';
+        // Set the session key as a cookie
+        res.cookie('sessionKey', sessionKey, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 5 * 60 * 1000,
+        });
 
-      // Send a response with a redirect message and JavaScript-based redirection
-      res.send(`
-        <p>Login successful! Redirecting...</p>
-        <script>
-          setTimeout(() => { window.location.href = "${redirectUrl}"; }, 2000); // Redirect after 2 seconds
-        </script>
-      `);
+        // Determine the redirect URL based on whether the user is an admin
+        const redirectUrl = isAdmin ? '/admin' : '/login';
+
+        // Send a response with a redirect message and JavaScript-based redirection
+        res.send(`
+            <p>Login successful! Redirecting...</p>
+            <script>
+                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 2000); // Redirect after 2 seconds
+            </script>
+        `);
     } catch (err) {
-      console.error(err);
-      res.status(400).send(err.message);
+        console.error(err);
+        res.status(400).send(err.message);
     }
-  });
-
+});
 // Handle account activation
 app.post('/activate', async (req, res) => {
     try {
