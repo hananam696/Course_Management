@@ -1,33 +1,35 @@
 const persistence = require('./persistence'); 
 const crypto = require("crypto"); 
 
-// Compute hash using SHA-256
+// generates a hash using sha-256 for secure password storage
 async function computeHash(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// Email validation 
+// checks if an email is in a valid format
 function isValidEmail(email) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
 }
 
+// registers a new user after verifying email and username uniqueness
 async function registerUser(username, email, password) {  
-    if (!isValidEmail(email)) throw new Error('Invalid email format');
-    const existingEmail = await persistence.findUserByEmail(email); // Check if email already exists
-    if (existingEmail) throw new Error('Email already exists');
-    const existingUser = await persistence.findUserByUsername(username); // Check if username already exists
-    if (existingUser) throw new Error('Username already taken. Choose a different username.');
-    const hashedPassword = await computeHash(password); 
+    if (!isValidEmail(email)) throw new Error('invalid email format');
+    const existingEmail = await persistence.findUserByEmail(email);
+    if (existingEmail) throw new Error('email already exists');
+    const existingUser = await persistence.findUserByUsername(username);
+    if (existingUser) throw new Error('username already taken. choose a different one.');
+    const hashedPassword = await computeHash(password);
     const activationCode = crypto.randomBytes(16).toString('hex');
-    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true }); 
+    return persistence.createUser({ username, email, password: hashedPassword, activationCode, active: true });
 }
 
-// Activate user account
+// activates a user account using the activation code
 async function activateUser(email, activationCode) {
     return persistence.activateUser(email, activationCode);
 }
 
+// handles user login by verifying credentials and generating a session
 async function loginUser(identifier, password) {
     let user;
     if (identifier.includes('@')) {
@@ -36,10 +38,11 @@ async function loginUser(identifier, password) {
         user = await persistence.findUserByUsername(identifier);
     }
 
-    if (!user) throw new Error('Invalid credentials');
-    if (!user.active) throw new Error('Account not activated. Please verify your email.');
+    if (!user) throw new Error('invalid credentials');
+    if (!user.active) throw new Error('account not activated. please verify your email.');
     const hashedPassword = await computeHash(password);
-    if (hashedPassword !== user.password) throw new Error('Invalid credentials');
+    if (hashedPassword !== user.password) throw new Error('invalid credentials');
+    
     const sessionKey = crypto.randomBytes(16).toString('hex');
     const sessionData = {
         sessionKey,
@@ -47,18 +50,19 @@ async function loginUser(identifier, password) {
             email: user.email,
             username: user.username
         },
-        expiry: new Date(Date.now() + 5 * 60 * 1000) // 5 minutes from now
+        expiry: new Date(Date.now() + 5 * 60 * 1000) // session valid for 5 minutes
     };
+    
     await persistence.updateSession(sessionKey, sessionData);
     return sessionKey;
 }
 
-// Get session data by session key
+// retrieves session data using a session key
 async function getSessionData(key) {
     return await persistence.getSessionData(key);
 }
 
-// Delete session by session key
+// deletes a session using a session key
 async function deleteSession(key) {
     return await persistence.deleteSession(key);
 }
@@ -70,4 +74,3 @@ module.exports = {
     getSessionData,
     deleteSession
 };
-
