@@ -4,6 +4,11 @@ const uri = "mongodb+srv://60104758:12class34@webproject.m9qp9.mongodb.net/";
 const client = new MongoClient(uri);
 let db, sessionCollection;
 
+/**
+ * Connects to the MongoDB database.
+ * @returns {Promise<import("mongodb").Db>} The connected database instance.
+ * @throws {Error} If the connection fails.
+ */
 async function connectDatabase() {
     try {
         await client.connect();
@@ -15,13 +20,23 @@ async function connectDatabase() {
     }
 }
 
-
+/**
+ * Retrieves all users from the database.
+ * @returns {Promise<Array<Object>>} List of user documents.
+ */
 async function getDetails() {
     await connectDatabase();
     return db.collection("users").find().toArray();
 }
 
-
+/**
+ * Creates a new user in the database.
+ * @param {Object} userData - The user data to insert.
+ * @param {string} userData.email - The user's email.
+ * @param {string} userData.username - The user's username.
+ * @param {string} userData.activationCode - The activation code for the user.
+ * @returns {Promise<Object>} The created user document.
+ */
 async function createUser(userData) {
     await connectDatabase();
     const usersCollection = db.collection("users");
@@ -30,18 +45,33 @@ async function createUser(userData) {
     return userData;
 }
 
+/**
+ * Finds a user by email.
+ * @param {string} email - The email of the user to find.
+ * @returns {Promise<Object|null>} The user document or null if not found.
+ */
 async function findUserByEmail(email) {
     await connectDatabase();
     return db.collection("users").findOne({ email });
 }
 
-
+/**
+ * Finds a user by username.
+ * @param {string} username - The username of the user to find.
+ * @returns {Promise<Object|null>} The user document or null if not found.
+ */
 async function findUserByUsername(username) {
     await connectDatabase();
     return db.collection("users").findOne({ username });
 }
 
-
+/**
+ * Activates a user account.
+ * @param {string} email - The user's email.
+ * @param {string} activationCode - The activation code.
+ * @returns {Promise<Object>} The activated user document.
+ * @throws {Error} If the activation code is invalid.
+ */
 async function activateUser(email, activationCode) {
     await connectDatabase();
     const user = await db.collection("users").findOne({ email, activationCode });
@@ -50,7 +80,13 @@ async function activateUser(email, activationCode) {
     return user;
 }
 
-
+/**
+ * Updates a user's information.
+ * @param {Object} userData - The user data to update.
+ * @param {string} userData.email - The user's email.
+ * @param {boolean} userData.active - The user's active status.
+ * @returns {Promise<void>}
+ */
 async function updateUser(userData) {
     await connectDatabase();
     await db.collection("users").updateOne(
@@ -59,7 +95,11 @@ async function updateUser(userData) {
     );
 }
 
-
+/**
+ * Retrieves session data based on session key.
+ * @param {string} sessionKey - The session key.
+ * @returns {Promise<Object|null>} The session document or null if expired or not found.
+ */
 async function getSessionData(sessionKey) {
     await connectDatabase();
     const session = await sessionCollection.findOne({ sessionKey });
@@ -69,7 +109,12 @@ async function getSessionData(sessionKey) {
     return null;
 }
 
-
+/**
+ * Updates session data.
+ * @param {string} sessionKey - The session key.
+ * @param {Object} sessionData - The session data to update.
+ * @returns {Promise<void>}
+ */
 async function updateSession(sessionKey, sessionData) {
     await connectDatabase();
     const expiry = new Date(Date.now() + 5 * 60 * 1000);
@@ -77,6 +122,12 @@ async function updateSession(sessionKey, sessionData) {
     await sessionCollection.replaceOne({ sessionKey }, sessionData, { upsert: true });
 }
 
+/**
+ * Updates the email in all sessions where the old email exists.
+ * @param {string} email - The old email.
+ * @param {string} newEmail - The new email to update.
+ * @returns {Promise<void>}
+ */
 async function updateSessionEmail(email, newEmail) {
     await connectDatabase();
     await sessionCollection.updateMany(
@@ -85,7 +136,11 @@ async function updateSessionEmail(email, newEmail) {
     );
 }
 
-
+/**
+ * Deletes a session based on session key.
+ * @param {string} sessionKey - The session key.
+ * @returns {Promise<void>}
+ */
 async function deleteSession(sessionKey) {
     await connectDatabase();
     await sessionCollection.deleteOne({ sessionKey });
