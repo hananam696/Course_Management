@@ -60,7 +60,7 @@ app.post('/login', async (req, res) => {
         res.send(`
             <p>Login successful! Redirecting...</p>
             <script>
-                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 2000); // Redirect after 2 seconds
+                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500); 
             </script>
         `);
     } catch (err) {

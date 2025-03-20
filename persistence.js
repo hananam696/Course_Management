@@ -4,14 +4,15 @@ const uri = "mongodb+srv://60104758:12class34@webproject.m9qp9.mongodb.net/";
 const client = new MongoClient(uri);
 let db, sessionCollection;
 
-
 async function connectDatabase() {
-    if (!db) {
+    try {
         await client.connect();
         db = client.db("course_management");
         sessionCollection = db.collection("sessions");
+        return db;
+    } catch (error) {
+        throw new Error("Database connection failed: " + error.message);
     }
-    return db;
 }
 
 
