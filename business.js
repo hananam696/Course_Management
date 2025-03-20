@@ -83,6 +83,8 @@ async function activateUser(username, activationCode) {
 const ADMIN_USERNAME = "admin";
 const ADMIN_EMAIL = "admin@udst.com";
 async function loginUser(identifier, password) {
+    
+    
     let user;
     if (identifier.includes('@')) {
         user = await persistence.findUserByEmail(identifier);
