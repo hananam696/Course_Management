@@ -1,15 +1,15 @@
 const { MongoClient } = require("mongodb");
 
 const uri = "mongodb+srv://60104758:12class34@webproject.m9qp9.mongodb.net/";
-const client = new MongoClient(uri); 
+const client = new MongoClient(uri);
 let db, sessionCollection;
 
-// MongoDB connection
+
 async function connectDatabase() {
     if (!db) {
         await client.connect();
-        db = client.db('course_management'); 
-        sessionCollection = db.collection("sessions"); 
+        db = client.db('course_management');
+        sessionCollection = db.collection("sessions");
         console.log("Connected to MongoDB");
     }
     return db;
@@ -21,14 +21,15 @@ async function getDetails() {
     return db.collection("users").find().toArray();
 }
 
+// Create a new user
 async function createUser(userData) {
-    console.log('Creating user with data:', userData);
     await connectDatabase();
     const usersCollection = db.collection('users');
-    userData.active = false; // Ensure the user is activated upon creation
+    userData.active = false; // User is inactive until activation
     await usersCollection.insertOne(userData);
     return userData;
 }
+
 
 // Find user by email
 async function findUserByEmail(email) {
@@ -36,13 +37,28 @@ async function findUserByEmail(email) {
     return db.collection('users').findOne({ email });
 }
 
-// Activate user account
-async function activateUser(email, activationCode) {
+// Find user by username
+async function findUserByUsername(username) {
     await connectDatabase();
-    const user = await db.collection('users').findOne({ email, activationCode });
+    return db.collection('users').findOne({ username });
+}
+
+// Activate user account
+async function activateUser(username, activationCode) {
+    await connectDatabase();
+    const user = await db.collection('users').findOne({ username, activationCode });
     if (!user) throw new Error('Invalid activation code');
-    await db.collection('users').updateOne({ email }, { $set: { active: true } });
+    await db.collection('users').updateOne({ username }, { $set: { active: true } });
     return user;
+}
+
+// Update user
+async function updateUser(userData) {
+    await connectDatabase();
+    await db.collection('users').updateOne(
+        { username: userData.username },
+        { $set: { active: userData.active } }
+    );
 }
 
 /*
@@ -76,8 +92,8 @@ async function updateSession(sessionKey, sessionData) {
 async function updateSessionUsername(username, newUsername) {
     await connectDatabase();
     await sessionCollection.updateMany(
-        { "user.username": username }, 
-        { $set: { "user.username": newUsername } }  
+        { "user.username": username },
+        { $set: { "user.username": newUsername } }
     );
 }
 
@@ -88,10 +104,6 @@ async function deleteSession(sessionKey) {
 }
 
 
-async function findUserByUsername(username) {
-    await connectDatabase();
-    return db.collection("users").findOne({ username: username }); 
-}
 
 module.exports = {
     findUserByUsername,
@@ -102,5 +114,9 @@ module.exports = {
     getSessionData,
     updateSession,
     updateSessionUsername,
-    deleteSession
+    deleteSession,
+    updateUser
 };
+
+
+
