@@ -1,3 +1,6 @@
+/**
+ * Express application setup.
+ */
 const express = require('express');
 const handlebars = require('express-handlebars');
 const business = require('./business');
@@ -6,15 +9,22 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
-
+// Configure view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 app.engine('handlebars', handlebars.engine());
 
+// Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));
 
+/**
+ * Renders the login page, displaying a message if the user has a session cookie.
+ * @route GET /
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.get('/', (req, res) => {
     const sessionKey = req.cookies.sessionKey;
     if (sessionKey) {
@@ -24,16 +34,38 @@ app.get('/', (req, res) => {
     }
 });
 
+/**
+ * Renders the login page.
+ * @route GET /login
+ */
 app.get('/login', (req, res) => res.render('login', { layout: false }));
 
+/**
+ * Renders the registration page.
+ * @route GET /register
+ */
 app.get('/register', (req, res) => res.render('register', { layout: false }));
 
+/**
+ * Renders the activation page.
+ * @route GET /activate
+ */
 app.get('/activate', (req, res) => res.render('activate', { layout: false }));
 
+/**
+ * Serves the admin panel.
+ * @route GET /admin
+ */
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'admin.html'));
 });
 
+/**
+ * Handles user registration.
+ * @route POST /register
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -47,6 +79,13 @@ app.post('/register', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
+
+/**
+ * Handles user login.
+ * @route POST /login
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body;
@@ -60,7 +99,7 @@ app.post('/login', async (req, res) => {
         res.send(`
             <p>Login successful! Redirecting...</p>
             <script>
-                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500); 
+                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500);
             </script>
         `);
     } catch (err) {
@@ -73,6 +112,12 @@ app.post('/login', async (req, res) => {
     }
 });
 
+/**
+ * Handles user account activation.
+ * @route POST /activate
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.post('/activate', async (req, res) => {
     try {
         const { email, activationCode } = req.body;
@@ -88,6 +133,12 @@ app.post('/activate', async (req, res) => {
     }
 });
 
+/**
+ * Logs the user out by clearing the session cookie.
+ * @route GET /logout
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.get('/logout', (req, res) => {
     res.clearCookie('sessionKey');
     res.redirect('/');
