@@ -1,4 +1,4 @@
-
+## Login to admin account information
 ADMIN ACCOUNT DETAILS :
 username: admin
 email: admin@udst.edu.qa
@@ -67,4 +67,35 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - modified login such as if user entered incorrect credentials it will show  error messgae in red
   and link to go back to login page to try again
 - formatting
+- after activation user gets a link to go to login page directly
 - and many more
+
+
+## Extra Requirements Done
+
+These extra features that were not explicitly required but enhance the functionality and user experience of the system:
+
+- Error Handling:
+
+Clear error messages for incorrect login credentials.
+
+Gave link to go back to login page after errors.
+
+- Activation Flow:
+
+After activation, users are redirected to the login page directly.
+
+Redirection to the login page after errors.
+
+- Port Configuration:
+
+The default port (8000) directs users to the login page.
+
+
+- Code Refactoring and Formatting:
+
+Code was edited, commented, and formatted for clarity.
+
+
+### Regular team meetings were held to coordinate efforts.
+
