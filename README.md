@@ -52,6 +52,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - Participated in the initial project setup
 - Worked on MongoDB integration, persistence, and business logic.
 - Updated login handlebars, form submissions, and HTML presentation.
+- implemented hash function, and used crypto
 - added session keys
 - Made improvements to session handling and project architecture.
 - fixed admin go to admin dashboard and user not having access to admin dashboard
