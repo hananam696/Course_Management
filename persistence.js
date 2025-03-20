@@ -42,20 +42,20 @@ async function findUserByUsername(username) {
     return db.collection("users").findOne({ username });
 }
 
-// Activates a user account using an activation code
-async function activateUser(username, activationCode) {
+
+async function activateUser(email, activationCode) {
     await connectDatabase();
-    const user = await db.collection("users").findOne({ username, activationCode });
+    const user = await db.collection("users").findOne({ email, activationCode });
     if (!user) throw new Error("Invalid activation code");
-    await db.collection("users").updateOne({ username }, { $set: { active: true } });
+    await db.collection("users").updateOne({ email }, { $set: { active: true } });
     return user;
 }
 
-// Updates user account (e.g., activation status)
+
 async function updateUser(userData) {
     await connectDatabase();
     await db.collection("users").updateOne(
-        { username: userData.username },
+        { email: userData.email }, // Use email instead of username
         { $set: { active: userData.active } }
     );
 }
@@ -78,12 +78,11 @@ async function updateSession(sessionKey, sessionData) {
     await sessionCollection.replaceOne({ sessionKey }, sessionData, { upsert: true });
 }
 
-// Updates a user's username in all active sessions
-async function updateSessionUsername(username, newUsername) {
+async function updateSessionEmail(email, newEmail) {
     await connectDatabase();
     await sessionCollection.updateMany(
-        { "user.username": username },
-        { $set: { "user.username": newUsername } }
+        { "user.email": email },
+        { $set: { "user.email": newEmail } }
     );
 }
 
@@ -101,7 +100,7 @@ module.exports = {
     getDetails,
     getSessionData,
     updateSession,
-    updateSessionUsername,
+    updateSessionEmail,
     deleteSession,
     updateUser
 };

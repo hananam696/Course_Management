@@ -47,17 +47,16 @@ async function registerUser(username, email, password) {
     });
 }
 
-// Activates a user account using the activation code
-async function activateUser(username, activationCode) {
+async function activateUser(email, activationCode) {
     // Hash the activation code provided by the user
     const hashedActivationCode = await computeActivationCodeHash(activationCode);
 
-    // Find the user by username
-    const user = await persistence.findUserByUsername(username);
+    // Find the user by email
+    const user = await persistence.findUserByEmail(email);
 
     if (!user) {
-        console.error(`User not found: ${username}`);
-        throw new Error('User not found');
+        console.error(`User not found: ${email}`);
+        throw new Error('User not found: Enter correct Email Address and Activation code');
     }
 
     // Log the stored activation code and the provided hashed activation code for debugging
@@ -71,7 +70,7 @@ async function activateUser(username, activationCode) {
     }
 
     // Mark user as active if the activation code matches
-    await persistence.updateUser({ username, active: true });
+    await persistence.updateUser({ email, active: true });
 
     // Simulate sending an email to confirm activation
     console.log(`Email sent to ${user.email}: Your account has been activated.`);
