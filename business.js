@@ -82,6 +82,8 @@ async function activateUser(username, activationCode) {
 
 // Handles user login by verifying credentials and generating a session
 async function loginUser(identifier, password) {
+    
+    
     let user;
     if (identifier.includes('@')) {
         // Find user by email
