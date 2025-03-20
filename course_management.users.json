@@ -1,0 +1,130 @@
+[{
+  "_id": {
+    "$oid": "67d93a54ae492df2b5882c39"
+  },
+  "username": "hanan",
+  "email": "hanans@gmail.com",
+  "password": "194d7ff7fbbd8d5a794fbfb53a17b93f55b194446a82c3396ec1c11b1c9f430d",
+  "activationCode": "6f8ba6d645799a102afe3593117d3c4c",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67d955f90f23a2ba823e844f"
+  },
+  "username": "amna",
+  "email": "amna@gmail.com",
+  "password": "8588310a98676af6e22563c1559e1ae20f85950792bdcd0c8f334867c54581cd",
+  "activationCode": "c7dde104ba17319d36ea68215564512a",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc4210694440662d86cd91"
+  },
+  "username": "raghad",
+  "email": "radhad@udst.com",
+  "password": "b3282a2f2a28757b3a18ab833de16a9c54518c0b0cf493e3f0a7cf09386f326a",
+  "activationCode": "4e571aaa0f46c080262b9dcaafb8160f721f8b91ed9385a79f75b952466f0ddd",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc437ec2f2013a1b8cbd0d"
+  },
+  "username": "tessst2",
+  "email": "tessst2@udst.com",
+  "password": "c6ee1e09929a5693b1ca6f4e269247a0b7d369619730af983be6d197deb0b731",
+  "activationCode": "38b5bbb5719b426e8f35dc58e335b34bce3500ad374a8cc8a83c93cd3e43e137",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc4ec04d6383f58ace36c2"
+  },
+  "username": "admin",
+  "email": "admin@udst.edu.qa",
+  "password": "93557f89b869aee3c45ac348262a3b27a9215be57a3d7b44f0d5a3a3635f04af",
+  "activationCode": "f869336ec7e5c4a31ddf743523bfbf27b808f2ad543d3d67644bf6a7b56c152d",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc50bd1c7e6517d2655519"
+  },
+  "username": "gangster",
+  "email": "gangsta@udst.edu.qa",
+  "password": "bfbd0a4486d66e7b6eb401b4013c0d57743e7a2f82e74241dd0ee557152b8986",
+  "activationCode": "f0e5148b5f66280c6ee4706ab4b603fd5701cc94ac59a40e24a421570df53e29",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc59f90a1ce0fc18de7b7b"
+  },
+  "username": "project",
+  "email": "pro@udst.edu.qa",
+  "password": "5ba13cf99dd3066227e55ea60a3483ccbff6a8ae36b6f1968f7681f9aabe7e89",
+  "activationCode": "ada1f909ce95b85e2fe7a4f53b044713f21e2a22cc28f23f0de3e9656456a7dc",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc5da80c83d165a28fa06d"
+  },
+  "username": "web2",
+  "email": "web@gmail.com",
+  "password": "a64c4cd79a1846eeb16f81040393eb36271577b03f4d996e5a5e741d565e840e",
+  "activationCode": "be22d17e919458fe91a030491ebfa0e8d59e88dfb8ce1a13c59bd825e1842940",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc63acd95ba1e382b458e0"
+  },
+  "username": "spiderman",
+  "email": "spider@gmail.com",
+  "password": "57d4aa377250296d19d9f55f132db4bc2725c657672b0c3e54467839e6c05356",
+  "activationCode": "be878b0fba44b7d2588e5c5b56fe1c54fff8362fdd23ae594925e239b87734b6",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc667c87c4272d2ac2a923"
+  },
+  "username": "batman",
+  "email": "bat@udst.edu.qa",
+  "password": "dc1bfe65b13195e3fd4a630252800efe47c31067a1d638d746cde92e497da6b1",
+  "activationCode": "64e5f672bf65da260f604d1a29eaa40dd11f6e4f2edb46e63f52d48d2474bd32",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc6ced1796b4636a6507e5"
+  },
+  "username": "babyshark",
+  "email": "shark@gmail.com",
+  "password": "a3ca38ef0e8554b39ce6fd34b011f9aa197cda1f17e2b08b1816142c4bc67199",
+  "activationCode": "3537866cc9e9c2956101d74a5dc4ee35043c87954a3ecf22abb189424fbbeca6",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc719f9f236b6bf0907429"
+  },
+  "username": "hihi",
+  "email": "hihi@udst.edu.qa",
+  "password": "27e6f695d734689575e2a063b77668a1fab9c7a83071134630f6a02ebf697592",
+  "activationCode": "2f1e755e89a6aee50aff8a5bec4f3f31409fa827a72754433b30edf592494d4a",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dc75af4f3a8a291f6a988e"
+  },
+  "username": "sama",
+  "email": "sama@yahoo.com",
+  "password": "4ae0b8d730c641ee770936a49e33699fb4d72d048480c74b8325169d812a56a6",
+  "activationCode": "f4b4cc5822e8fa0f0b7ed1594831cd9b377b1d663c8b1f3b6c086b495c7f7e09",
+  "active": true
+}]

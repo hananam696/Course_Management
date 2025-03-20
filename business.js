@@ -39,20 +39,15 @@ function isValidEmail(email) {
  */
 async function registerUser(username, email, password) {
     if (!isValidEmail(email)) throw new Error('Invalid email format');
-
     const existingEmail = await persistence.findUserByEmail(email);
     if (existingEmail) throw new Error('Email already exists');
     const existingUser = await persistence.findUserByUsername(username);
     if (existingUser) throw new Error('Username already taken. Choose a different username.');
 
     const hashedPassword = await computeHash(password);
-
     const activationCode = crypto.randomBytes(16).toString('hex');
     const hashedActivationCode = await computeActivationCodeHash(activationCode);
-
-
     console.log(`Email sent to ${email} with activation code: ${activationCode}`);
-
 
     return persistence.createUser({
         username,
@@ -107,11 +102,9 @@ async function loginUser(identifier, password) {
 
     if (!user) throw new Error('Invalid credentials');
     if (!user.active) throw new Error('Account not activated. Please verify your email.');
-
     const hashedPassword = await computeHash(password);
 
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
-
     const isAdmin = user.username === ADMIN_USERNAME || user.email === ADMIN_EMAIL;
 
     const sessionKey = crypto.randomBytes(16).toString('hex');
@@ -124,7 +117,6 @@ async function loginUser(identifier, password) {
         },
         expiry: new Date(Date.now() + 5 * 60 * 1000)
     };
-
     await persistence.updateSession(sessionKey, sessionData);
 
     return {

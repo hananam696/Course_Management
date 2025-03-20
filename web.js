@@ -1,12 +1,8 @@
-/**
- * Express application setup.
- */
 const express = require('express');
 const handlebars = require('express-handlebars');
 const business = require('./business');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-
 const app = express();
 
 // Configure view engine
