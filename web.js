@@ -177,7 +177,10 @@ app.post('/activate', async (req, res) => {
     try {
         const { username, activationCode } = req.body;
         await business.activateUser(username, activationCode);
-        res.send('Account activated. You can now log in.');
+        res.send(`
+            <p>Account activated. You can now log in.</p>
+            <a href="/login">Click here to log in</a>
+        `);
     } catch (err) {
         console.error(err);
         res.status(400).send(err.message);
