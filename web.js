@@ -42,20 +42,27 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Handle user login and set session cookie
+// Admin homepage route
+app.get('/admin', (req, res) => {
+    res.render('admin', { layout: false }); // Render the admin.handlebars template
+});
+
 app.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body; // "identifier" can be email or username
-        const sessionKey = await business.loginUser(identifier, password);
+        const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
 
         // Set the session key as a cookie
         res.cookie('sessionKey', sessionKey, { httpOnly: true });
 
-        // Redirect to home with success message
+        // Determine the redirect URL based on whether the user is an admin
+        const redirectUrl = isAdmin ? '/admin' : '/';
+
+        // Send a response with a redirect message and JavaScript-based redirection
         res.send(`
             <p>Login successful! Redirecting...</p>
             <script>
-                setTimeout(() => { window.location.href = "/"; }, 2000);
+                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 2000); // Redirect after 2 seconds
             </script>
         `);
     } catch (err) {
@@ -63,7 +70,6 @@ app.post('/login', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
-
 // Handle account activation
 app.post('/activate', async (req, res) => {
     try {
