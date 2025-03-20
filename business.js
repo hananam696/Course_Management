@@ -38,12 +38,12 @@ async function registerUser(username, email, password) {
     console.log(`Email sent to ${email} with activation code: ${activationCode}`);
 
     // Save user with hashed password and activation code
-    return persistence.createUser({ 
-        username, 
-        email, 
-        password: hashedPassword, 
-        activationCode: hashedActivationCode, 
-        active: false 
+    return persistence.createUser({
+        username,
+        email,
+        password: hashedPassword,
+        activationCode: hashedActivationCode,
+        active: false
     });
 }
 
@@ -80,39 +80,45 @@ async function activateUser(username, activationCode) {
     return user;
 }
 
-// Handles user login by verifying credentials and generating a session
+const ADMIN_USERNAME = "admin";
+const ADMIN_EMAIL = "admin@udst.com";
 async function loginUser(identifier, password) {
     let user;
     if (identifier.includes('@')) {
-        // Find user by email
         user = await persistence.findUserByEmail(identifier);
     } else {
-        // Find user by username
         user = await persistence.findUserByUsername(identifier);
     }
+
+    console.log(`User found: ${JSON.stringify(user)}`); // Debugging log
 
     if (!user) throw new Error('Invalid credentials');
     if (!user.active) throw new Error('Account not activated. Please verify your email.');
 
-    // Hash the entered password and compare with the stored hashed password
     const hashedPassword = await computeHash(password);
+    console.log(`Hashed password: ${hashedPassword}`); // Debugging log
+    console.log(`Stored password: ${user.password}`); // Debugging log
+
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
-    // Create a session for the logged-in user
+    const isAdmin = user.username === ADMIN_USERNAME || user.email === ADMIN_EMAIL;
+
     const sessionKey = crypto.randomBytes(16).toString('hex');
     const sessionData = {
         sessionKey,
         user: {
             email: user.email,
-            username: user.username
+            username: user.username,
+            isAdmin: isAdmin
         },
-        expiry: new Date(Date.now() + 5 * 60 * 1000) // Session valid for 5 minutes
+        expiry: new Date(Date.now() + 5 * 60 * 1000)
     };
 
     await persistence.updateSession(sessionKey, sessionData);
+    console.log(`Session created: ${sessionKey}`); // Debugging log
+
     return sessionKey;
 }
-
 // Retrieves session data using a session key
 async function getSessionData(key) {
     return await persistence.getSessionData(key);
