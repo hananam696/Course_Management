@@ -4,49 +4,63 @@ const uri = "mongodb+srv://60104758:12class34@webproject.m9qp9.mongodb.net/";
 const client = new MongoClient(uri);
 let db, sessionCollection;
 
-// connects to the mongodb database if not already connected
+// Connects to the MongoDB database if not already connected
 async function connectDatabase() {
     if (!db) {
         await client.connect();
         db = client.db("course_management");
         sessionCollection = db.collection("sessions");
-        console.log("connected to mongodb");
+        console.log("Connected to MongoDB");
     }
     return db;
 }
 
-// retrieves all user details from the database
+// Retrieves all user details from the database
 async function getDetails() {
     await connectDatabase();
     return db.collection("users").find().toArray();
 }
 
-// creates a new user in the database with default inactive status
+// Creates a new user in the database with default inactive status
 async function createUser(userData) {
-    console.log("creating user with data:", userData);
     await connectDatabase();
     const usersCollection = db.collection("users");
-    userData.active = false;
+    userData.active = false; // User is inactive until activation
     await usersCollection.insertOne(userData);
     return userData;
 }
 
-// finds a user by their email address
+// Finds a user by their email address
 async function findUserByEmail(email) {
     await connectDatabase();
     return db.collection("users").findOne({ email });
 }
 
-// activates a user account using an activation code
-async function activateUser(email, activationCode) {
+// Finds a user by their username
+async function findUserByUsername(username) {
     await connectDatabase();
-    const user = await db.collection("users").findOne({ email, activationCode });
-    if (!user) throw new Error("invalid activation code");
-    await db.collection("users").updateOne({ email }, { $set: { active: true } });
+    return db.collection("users").findOne({ username });
+}
+
+// Activates a user account using an activation code
+async function activateUser(username, activationCode) {
+    await connectDatabase();
+    const user = await db.collection("users").findOne({ username, activationCode });
+    if (!user) throw new Error("Invalid activation code");
+    await db.collection("users").updateOne({ username }, { $set: { active: true } });
     return user;
 }
 
-// retrieves session data if the session is still valid
+// Updates user account (e.g., activation status)
+async function updateUser(userData) {
+    await connectDatabase();
+    await db.collection("users").updateOne(
+        { username: userData.username },
+        { $set: { active: userData.active } }
+    );
+}
+
+// Retrieves session data if the session is still valid
 async function getSessionData(sessionKey) {
     await connectDatabase();
     const session = await sessionCollection.findOne({ sessionKey });
@@ -56,7 +70,7 @@ async function getSessionData(sessionKey) {
     return null;
 }
 
-// updates or creates a session with a new expiry time
+// Updates or creates a session with a new expiry time
 async function updateSession(sessionKey, sessionData) {
     await connectDatabase();
     const expiry = new Date(Date.now() + 5 * 60 * 1000);
@@ -64,7 +78,7 @@ async function updateSession(sessionKey, sessionData) {
     await sessionCollection.replaceOne({ sessionKey }, sessionData, { upsert: true });
 }
 
-// updates a user's username in all active sessions
+// Updates a user's username in all active sessions
 async function updateSessionUsername(username, newUsername) {
     await connectDatabase();
     await sessionCollection.updateMany(
@@ -73,16 +87,10 @@ async function updateSessionUsername(username, newUsername) {
     );
 }
 
-// deletes a session by its session key
+// Deletes a session by its session key
 async function deleteSession(sessionKey) {
     await connectDatabase();
     await sessionCollection.deleteOne({ sessionKey });
-}
-
-// finds a user by their username
-async function findUserByUsername(username) {
-    await connectDatabase();
-    return db.collection("users").findOne({ username });
 }
 
 module.exports = {
@@ -94,5 +102,6 @@ module.exports = {
     getSessionData,
     updateSession,
     updateSessionUsername,
-    deleteSession
+    deleteSession,
+    updateUser
 };

@@ -6,60 +6,75 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 
-// set up handlebars as the template engine
+// Set up Handlebars as the template engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
 app.engine('handlebars', handlebars.engine());
 
-// middleware to parse incoming data and use cookies
+// Middleware to parse incoming data and use cookies
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// render the login page when users access the root url
+// Render the login page when users access the root URL
 app.get('/', (req, res) => res.render('login', { layout: false }));
 
-// render the registration page
+// Render the registration page
 app.get('/register', (req, res) => res.render('register', { layout: false }));
 
-// render the login page (alternative route)
-app.get('/login', (req, res) => res.render('login', { layout: false }));
+// Render the activation page
+app.get('/activate', (req, res) => res.render('activate', { layout: false }));
 
-// handle user registration
+// Handle user registration
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
         const user = await business.registerUser(username, email, password);
-        res.send(`user registered. check your email for activation code. code: ${user.activationCode}`);
+
+        // Provide activation instructions
+        res.send(`
+            <p>User registered. Check your email for activation code.</p>
+            <a href="/activate">Click here to enter your activation code</a>
+        `);
     } catch (err) {
         console.error(err);
         res.status(400).send(err.message);
     }
 });
 
-// handle user login and redirect based on role
+// Handle user login and set session cookie
 app.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body; // "identifier" can be email or username
-        const user = await business.loginUser(identifier, password);
-        res.redirect('/');
+        const sessionKey = await business.loginUser(identifier, password);
+
+        // Set the session key as a cookie
+        res.cookie('sessionKey', sessionKey, { httpOnly: true });
+
+        // Redirect to home with success message
+        res.send(`
+            <p>Login successful! Redirecting...</p>
+            <script>
+                setTimeout(() => { window.location.href = "/"; }, 2000);
+            </script>
+        `);
     } catch (err) {
         console.error(err);
         res.status(400).send(err.message);
     }
 });
 
-// handle account activation
+// Handle account activation
 app.post('/activate', async (req, res) => {
     try {
-        const { email, activationCode } = req.body;
-        await business.activateUser(email, activationCode);
-        res.send('account activated. you can now log in.');
+        const { username, activationCode } = req.body;
+        await business.activateUser(username, activationCode);
+        res.send('Account activated. You can now log in.');
     } catch (err) {
         console.error(err);
         res.status(400).send(err.message);
     }
 });
 
-// start the server on port 8000
-app.listen(8000, () => console.log('server running on http://localhost:8000/login'));
+// Start the server on port 8000
+app.listen(8000, () => console.log('Server running on http://localhost:8000'));
