@@ -1,8 +1,27 @@
+# DATABASE NAME : course_management
+
 ## Login to admin account information
+
 ADMIN ACCOUNT DETAILS :
 username: admin
 email: admin@udst.edu.qa
 password: 12admin34
+
+
+## Login to users account information
+
+username  -   Email id             - password
+hanan     -   hanans@gmail.com     - 12class34
+amna      -   radhad@udst.com      - 1122
+gangster  -   gangsta@udst.edu.qa  - cant
+spiderman -   spider@gmail.com     - spider
+batman    -   bat@udst.edu.qa      - bats
+babyshark -   shark@gmail.com      - baby
+hihi      -   hihi@udst.edu.qa     - hihi
+sama      -   sama@yahoo.com       - sama
+project   -   pro@udst.edu.qa      - pro
+web2      -   web@gmail.com        - webs
+tessst2   -   tessst2@udst.com     - tesst2
 
 # group members hanan, raghad, amna
 
