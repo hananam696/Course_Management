@@ -30,16 +30,6 @@
 },
 {
   "_id": {
-    "$oid": "67dc437ec2f2013a1b8cbd0d"
-  },
-  "username": "tessst2",
-  "email": "tessst2@udst.com",
-  "password": "c6ee1e09929a5693b1ca6f4e269247a0b7d369619730af983be6d197deb0b731",
-  "activationCode": "38b5bbb5719b426e8f35dc58e335b34bce3500ad374a8cc8a83c93cd3e43e137",
-  "active": true
-},
-{
-  "_id": {
     "$oid": "67dc4ec04d6383f58ace36c2"
   },
   "username": "admin",
@@ -56,26 +46,6 @@
   "email": "gangsta@udst.edu.qa",
   "password": "bfbd0a4486d66e7b6eb401b4013c0d57743e7a2f82e74241dd0ee557152b8986",
   "activationCode": "f0e5148b5f66280c6ee4706ab4b603fd5701cc94ac59a40e24a421570df53e29",
-  "active": true
-},
-{
-  "_id": {
-    "$oid": "67dc59f90a1ce0fc18de7b7b"
-  },
-  "username": "project",
-  "email": "pro@udst.edu.qa",
-  "password": "5ba13cf99dd3066227e55ea60a3483ccbff6a8ae36b6f1968f7681f9aabe7e89",
-  "activationCode": "ada1f909ce95b85e2fe7a4f53b044713f21e2a22cc28f23f0de3e9656456a7dc",
-  "active": true
-},
-{
-  "_id": {
-    "$oid": "67dc5da80c83d165a28fa06d"
-  },
-  "username": "web2",
-  "email": "web@gmail.com",
-  "password": "a64c4cd79a1846eeb16f81040393eb36271577b03f4d996e5a5e741d565e840e",
-  "activationCode": "be22d17e919458fe91a030491ebfa0e8d59e88dfb8ce1a13c59bd825e1842940",
   "active": true
 },
 {
@@ -126,5 +96,35 @@
   "email": "sama@yahoo.com",
   "password": "4ae0b8d730c641ee770936a49e33699fb4d72d048480c74b8325169d812a56a6",
   "activationCode": "f4b4cc5822e8fa0f0b7ed1594831cd9b377b1d663c8b1f3b6c086b495c7f7e09",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dfd9e571375d6725634095"
+  },
+  "username": "project",
+  "email": "pro@udst.edu.qa",
+  "password": "07ed400759a0f606a8b5bfa84712aabe7d1b1c45cb6536c8a5727446b6647b84",
+  "activationCode": "2978a2d1e7140ad8005bc94d0de4e93ef48f05b4e0c166dabf95985992e0e45b",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dfda3471375d6725634096"
+  },
+  "username": "web2",
+  "email": "web@gmail.com",
+  "password": "5e4f9850f61ed71a3e02f6d1991da5f447fce6f4275780c106c9603fd9f8d5ed",
+  "activationCode": "02e489e5851231e9ed6cfb7ffab92e08896edfdf5330917c011b220b3a08802d",
+  "active": true
+},
+{
+  "_id": {
+    "$oid": "67dfda9171375d6725634097"
+  },
+  "username": "tessst2",
+  "email": "tessst2@udst.com",
+  "password": "6584655fdfbf752d87331b24fb520696f3e1283c5f74e382f3f2bdad23d54135",
+  "activationCode": "21c21ddf8c482a375c57e3d25c2c634a37288dd82b2c5c5e9eb3ebba26815857",
   "active": true
 }]
