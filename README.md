@@ -1,5 +1,5 @@
 
-# group members hanan, raghad, amna
+# Group members Hanan, Raghad, Amna
 
 #Team Meeting Times
 | Day        | Time                         |
@@ -9,6 +9,11 @@
 | Monday     | 10:00 - 11:00, 2:00 - 3:00   |
 | Tuesday    | 2:00 - 3:00                  |
 | Wednesday  | 2:00 - 3:30                  |
+
+# **What is left to do:**
+-list
+-list
+*lsit
 ---------------------------------------------------
 
 ## Login to admin account information
