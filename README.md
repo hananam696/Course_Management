@@ -10,10 +10,11 @@
 | Tuesday    | 2:00 - 3:00                  |
 | Wednesday  | 2:00 - 3:30                  |
 
-# **What is left to do:** 
-## -list 
-## -list
-## *lsit
+# What is left to DO:
+
+- [✅] do one  
+- [x] 2 
+
 ---------------------------------------------------
 
 ## Login to admin account information
