@@ -15,31 +15,31 @@
 ### 📌 Tasks:
 - [ ] **User Registration**
   - [ ] Create registration form (name, contact, degree)
-  - [ ] Store user data in MongoDB
-  - [ ] Email verification via `console.log()`
+  - [x] Store user data in MongoDB
+  - [x] Email verification via `console.log()`
   - [ ] Block login until verified
 
 - [ ] **Session Implementation**
   - [ ] Use session cookies
   - [ ] Restrict access if no session
-  - [ ] Passwords must be hashed (not in plain text)
+  - [x] Passwords must be hashed (not in plain text)
 
 - [ ] **Basic Login System**
   - [ ] Allow login for students and HoD
-  - [ ] Different views for student and HoD
+  - [x] Different views for student and HoD
 
 - [ ] **Code Structure**
   - [ ] Use clear variable/function names
-  - [ ] Proper formatting
-  - [ ] Add documentation/comments
+  - [x] Proper formatting
+  - [x] Add documentation/comments
   - [ ] Follow the architecture model
 
 - [ ] **CoreUI Template**
   - [ ] Begin integrating CoreUI layout (optional for milestone)
 
-- [ ] **Submission**
-  - [ ] Create private GitHub repo, add instructor
-  - [ ] Submit ZIP of project on D2L
+- [x] **Submission**
+  - [x] Create private GitHub repo, add instructor
+  - [x] Submit ZIP of project on D2L
 
 ---
 
