@@ -12,12 +12,12 @@
 
 # What is left to DO:
 
-- [✅] do one  
-- [x] 2 
+- finish one. ✅
+- finish two. ❌
 
 ---------------------------------------------------
 
-## Login to admin account information
+## Login to the admin account information
 ADMIN ACCOUNT DETAILS :
 username: admin
 email: admin@udst.edu.qa
