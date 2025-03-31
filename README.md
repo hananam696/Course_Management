@@ -10,10 +10,116 @@
 | Tuesday    | 2:00 - 3:00                  |
 | Wednesday  | 2:00 - 3:30                  |
 
-# What is left to DO:
+---------------------------------------------------
+## Milestone Submission 
+### 📌 Tasks:
+- [ ] **User Registration**
+  - [ ] Create registration form (name, contact, degree)
+  - [ ] Store user data in MongoDB
+  - [ ] Email verification via `console.log()`
+  - [ ] Block login until verified
 
-- finish one. ✅
-- finish two. ❌
+- [ ] **Session Implementation**
+  - [ ] Use session cookies
+  - [ ] Restrict access if no session
+  - [ ] Passwords must be hashed (not in plain text)
+
+- [ ] **Basic Login System**
+  - [ ] Allow login for students and HoD
+  - [ ] Different views for student and HoD
+
+- [ ] **Code Structure**
+  - [ ] Use clear variable/function names
+  - [ ] Proper formatting
+  - [ ] Add documentation/comments
+  - [ ] Follow the architecture model
+
+- [ ] **CoreUI Template**
+  - [ ] Begin integrating CoreUI layout (optional for milestone)
+
+- [ ] **Submission**
+  - [ ] Create private GitHub repo, add instructor
+  - [ ] Submit ZIP of project on D2L
+
+---
+
+## Collaboration 
+### 📌 Tasks:
+- [ ] **GitHub Activity**
+  - [ ] Commit regularly (not just last minute)
+  - [ ] Write meaningful commit messages
+
+- [ ] **Team Contribution**
+  - [ ] All members contribute
+  - [ ] Take GitHub commit screenshots
+  - [ ] Submit screenshots in Word file on D2L
+
+---
+
+## Final Submission   
+### 📌 Features & Tasks:
+
+- [ ] **User Registration & Management (4 pts)**
+  - [ ] Full registration with field validation
+  - [ ] Email verification logic
+  - [ ] Password reset (token-based or similar)
+
+- [ ] **Request Submission (4 pts)**
+  - [ ] Students submit categorized requests
+  - [ ] Requests saved to MongoDB
+  - [ ] Estimate processing time based on queue size
+
+- [ ] **HoD View Requests (5 pts)**
+  - [ ] HoD dashboard with request queues
+  - [ ] View request list in each queue
+  - [ ] Show stats per queue
+
+- [ ] **HoD Process Requests (5 pts)**
+  - [ ] View and update request details
+  - [ ] Approve/Reject + message
+  - [ ] Log simulated email via `console.log()`
+  - [ ] “I don’t know where to begin” randomizer
+
+- [ ] **Style & Design (3 pts)**
+  - [ ] Use CoreUI on all pages
+  - [ ] Ensure responsiveness for desktop & mobile
+
+- [ ] **Final Video Submission**
+  - [ ] Record a 10-min project walkthrough
+  - [ ] Upload to YouTube (unlisted)
+  - [ ] Include video link in submission
+
+- [ ] **Final D2L Submission**
+  - [ ] ZIP file of complete project
+  - [ ] Include `README.md` with run instructions
+  - [ ] Ensure app runs with `npm install` and `node web.js`
+
+---
+
+## 🔐 Security & Tech Constraints
+- [ ] Do NOT use `express-session`
+- [ ] Do NOT use external CSRF packages
+- [ ] Only client-side JS allowed: form validation
+- [ ] Email via `console.log()` only
+
+---
+
+## 📁 Repository Checklist
+- [ ] GitHub repo is **private**
+- [ ] All team members added as collaborators
+- [ ] Instructor added as collaborator
+
+---
+
+## 📽️ Final Video Tips
+- Focus on:
+  - Registration flow
+  - Request creation
+  - HoD view and processing
+  - Queue system + estimates
+  - CSRF protection example
+  - CoreUI layout use
+
 
 ---------------------------------------------------
 
