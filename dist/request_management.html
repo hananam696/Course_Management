@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management System</title>
+    <link rel="stylesheet" href="/dist/coreui.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Submit a Request</h2>
+        <form id="requestForm">
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select id="category" class="form-control">
+                    <option value="course-change">Course Change</option>
+                    <option value="capstone-registration">Capstone Registration</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="details" class="form-label">Details</label>
+                <textarea id="details" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Request Queue</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="requestTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const category = document.getElementById('category').value;
+            const details = document.getElementById('details').value;
+            const response = await fetch('/submit-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: '12345', category, details })
+            });
+            if (response.ok) alert('Request submitted!');
+        });
+
+        async function loadRequests() {
+            const response = await fetch('/queues');
+            const requests = await response.json();
+            const tableBody = document.getElementById('requestTableBody');
+            tableBody.innerHTML = requests.map(req => `
+                <tr>
+                    <td>${req.requestId}</td>
+                    <td>${req.category}</td>
+                    <td>${req.status}</td>
+                    <td><button onclick="processRequest('${req.requestId}')" class="btn btn-success">Process</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function processRequest(requestId) {
+            const response = await fetch('/process-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId, action: 'Approved', note: 'Processed' })
+            });
+            if (response.ok) alert('Request processed!');
+        }
+
+        loadRequests();
+    </script>
+</body>
+</html>
