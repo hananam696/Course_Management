@@ -68,13 +68,12 @@ app.post('/register', async (req, res) => {
     try {
         const { username, email, password, degreeProgram } = req.body;
         
-        // Add account type handling
         const userData = {
             username,
             email,
             password,
             degreeProgram: degreeProgram || null,
-            accountType: "Student" // Default value set server-side
+            accountType: "Student" 
         };
 
         const user = await business.registerUser(userData);
@@ -87,12 +86,6 @@ app.post('/register', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
-
-
-
-
-
-
 
 /**
  * Handles user login.

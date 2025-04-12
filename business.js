@@ -66,7 +66,7 @@ async function registerUser(userData) {
         activationCode: hashedActivationCode,
         active: false,
         accountType: "Student", 
-        degreeProgram: degreeProgram 
+        degreeProgram: degreeProgram || null
     });
 }
 
