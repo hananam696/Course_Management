@@ -1,87 +1,67 @@
-<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card mb-4 mx-4">
-          <div class="card-body p-4">
-            <h1>Submit Request</h1>
-            <p class="text-medium-emphasis">Fill the form to submit a new request</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Register</title>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card mb-4 mx-4">
+                        <div class="card-body p-4">
+                            <h1>Register</h1>
+                            <p class="text-medium-emphasis">Create your account</p>
 
-            <form action="/student/request/new" method="POST">
+                            <form action="/register" method="POST">
+                                <!-- Username -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="text" name="username" placeholder="Username" required>
+                                </div>
 
-              <!-- Student Name -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon">
-                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
-                  </svg>
-                </span>
-                <input class="form-control" type="text" name="name" placeholder="Your Name" value="{{user.name}}" readonly>
-              </div>
+                                <!-- Email -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-envelope-open"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="email" name="email" placeholder="Email" required>
+                                </div>
 
-              <!-- Degree Program Field -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-education"></use></svg>
-                </span>
-                <input class="form-control" type="text" name="degreeProgram" placeholder="Degree Program (e.g. Computer Science)">
-              </div>
+                                <!-- Degree Program -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-education"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="text" name="degreeProgram" placeholder="Degree Program (e.g. Computer Science)">
+                                </div>
 
-              <!-- Password Field -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use></svg>
-                </span>
-                <input class="form-control" type="password" name="password" placeholder="Password" required>
-              </div>
-              
-              <!-- Category -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon">
-                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-list"></use>
-                  </svg>
-                </span>
-                <select class="form-select" name="category" required>
-                  <option value="" disabled selected>Select Category</option>
-                  {{#each categories}}
-                    <option value="{{this}}">{{this}}</option>
-                  {{/each}}
-                </select>
-              </div>
-               <!-- Type -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon">
-                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-description"></use>
-                  </svg>
-                </span>
-                <input class="form-control" type="text" name="type" placeholder="Type of Request" required>
-              </div>
+                                <!-- Password -->
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="password" name="password" placeholder="Password" required>
+                                </div>
 
-              <!-- Description -->
-              <div class="input-group mb-3">
-                <span class="input-group-text">
-                  <svg class="icon">
-                    <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-pencil"></use>
-                  </svg>
-                </span>
-                <textarea class="form-control" name="description" placeholder="Enter details..." rows="4" required></textarea>
-              </div>
+                                <!-- Repeat Password -->
+                                <div class="input-group mb-4">
+                                    <span class="input-group-text">
+                                        <svg class="icon"><use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lock-locked"></use></svg>
+                                    </span>
+                                    <input class="form-control" type="password" name="repeatPassword" placeholder="Repeat Password" required>
+                                </div>
 
-              <!-- Submit -->
-              <button class="btn btn-success d-block w-100" type="submit">Submit Request</button>
-            </form>
-
-            {{#if estimatedTime}}
-            <div class="alert alert-info mt-3">
-              Estimated processing time: <strong>{{estimatedTime}}</strong>
+                                <button class="btn btn-block btn-success" type="submit">Create Account</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {{/if}}
-
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
+</body>
+</html>
