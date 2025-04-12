@@ -146,6 +146,22 @@ async function deleteSession(sessionKey) {
     await sessionCollection.deleteOne({ sessionKey });
 }
 
+
+async function updatePassword(key, pw) {
+    await connectDatabase()
+    let userCollection = db.collection('users')
+    let user = await userCollection.findOne({resetkey: key})
+    user.password = pw
+    delete user.resetkey
+    await userCollection.replaceOne({email:user.email}, user)
+}
+
+async function checkReset(key) {
+    await connectDatabase();
+    const usersCollection = db.collection("users"); // Correct collection name
+    return usersCollection.findOne({ resetkey: key });
+}
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -156,5 +172,9 @@ module.exports = {
     updateSession,
     updateSessionEmail,
     deleteSession,
-    updateUser
+    updateUser,
+    updatePassword,
+    checkReset
+    
+    
 };

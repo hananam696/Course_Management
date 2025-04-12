@@ -1,5 +1,7 @@
 const persistence = require('./persistence');
 const crypto = require("crypto");
+const nodemailer = require('nodemailer');
+
 
 /**
  * Computes a SHA-256 hash of a given password.
@@ -151,10 +153,55 @@ async function deleteSession(key) {
     return await persistence.deleteSession(key);
 }
 
+
+
+async function resetPassword(email) {
+    let details = await persistence.findUserByEmail(email)
+    if (details) {
+        let key = crypto.randomUUID()
+        details.resetkey = key
+        await persistence.updateUser(details)
+        
+        let transporter = nodemailer.createTransport({
+            host: "127.0.0.1",
+            port: 25
+        })
+
+        let body = `
+        A password reset request has been made for your account.  Please
+        follow <a href="http://127.0.0.1:8000/reset-password/?key=${key}">this link</a>
+        to set a new password for your account.`
+        await transporter.sendMail({
+            from: "lab9@infs3203.com",
+            to: email,
+            subject: "Password reset",
+            html: body
+        })
+        console.log(body)
+    }
+    return undefined
+}
+
+async function checkReset(key) {
+    return persistence.checkReset(key)
+}
+
+async function setPassword(key, pw) {
+    let hash = crypto.createHash('sha256')
+    hash.update(pw)
+    let hashed_pw = hash.digest('hex')
+
+    await persistence.updatePassword(key, hashed_pw)
+}
+
+
 module.exports = {
     registerUser,
     activateUser,
     loginUser,
     getSessionData,
-    deleteSession
+    deleteSession,
+    resetPassword,
+    checkReset,
+    setPassword
 };

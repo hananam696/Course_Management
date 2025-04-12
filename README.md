@@ -12,9 +12,10 @@ password: 12admin34
 
 username  -   Email id             - password
 hanan     -   hanans@gmail.com     - 12class34
-amna      -   radhad@udst.com      - 1122
+amna      -   amna@gmail.com       - asdfgh
+raghad    -   raghad@udst.com      - 1122
 gangster  -   gangsta@udst.edu.qa  - cant
-spiderman -   spider@gmail.com     - spider
+spiderman -   spider@gmail.com     - spy
 batman    -   bat@udst.edu.qa      - bats
 babyshark -   shark@gmail.com      - baby
 hihi      -   hihi@udst.edu.qa     - hihi
