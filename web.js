@@ -144,5 +144,40 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
+
+app.get('/forgot-password', (req, res) => {
+    res.render('password_reset')
+})
+
+app.post('/forgot-password', async (req, res) => {
+   await business.resetPassword(req.body.email)
+    res.send("Check your email for a password reset link.")
+})
+
+app.get('/reset-password', async (req, res) => {
+    let checkReset = business.checkReset(req.query.key)
+    if (!checkReset) {
+        res.send("Invalid key")
+        return
+    }
+    res.render("new_password", {
+        key: req.query.key
+    })
+})
+
+app.post('/reset-password', async (req, res) => {
+    let pw = req.body.password
+    let confirm = req.body.confirm
+    let key = req.body.key
+    if (pw != confirm) {
+        res.send("Password mismatch")
+        return
+    }
+    await business.setPassword(key, pw)
+    res.redirect('/?message=Password changed')
+})
+
+
+
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
