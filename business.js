@@ -39,29 +39,34 @@ function isValidEmail(email) {
  * @throws {Error} - If the email format is invalid, email/username already exists.
  * @returns {Promise<Object>} - The created user object.
  */
-async function registerUser(username, email, password) {
+async function registerUser(userData) {
+    const { username, email, password, degreeProgram } = userData;
+    
     if (!isValidEmail(email)) throw new Error('Invalid email format');
 
+    // Check existing users
     const existingEmail = await persistence.findUserByEmail(email);
     if (existingEmail) throw new Error('Email already exists');
+    
     const existingUser = await persistence.findUserByUsername(username);
-    if (existingUser) throw new Error('Username already taken. Choose a different username.');
+    if (existingUser) throw new Error('Username already taken');
 
+    // Hash password and generate activation
     const hashedPassword = await computeHash(password);
-
     const activationCode = crypto.randomBytes(16).toString('hex');
     const hashedActivationCode = await computeActivationCodeHash(activationCode);
 
-
     console.log(`Email sent to ${email} with activation code: ${activationCode}`);
 
-
+    // Create user with default account type
     return persistence.createUser({
         username,
         email,
         password: hashedPassword,
         activationCode: hashedActivationCode,
-        active: false
+        active: false,
+        accountType: "Student", 
+        degreeProgram: degreeProgram 
     });
 }
 
@@ -97,7 +102,8 @@ async function activateUser(email, activationCode) {
  * @returns {Promise<{sessionKey: string, isAdmin: boolean}>} - The session key and admin status.
  */
 const ADMIN_USERNAME = "admin";
-const ADMIN_EMAIL = "admin@udst.com";
+const ADMIN_EMAIL = "admin@udst.edu.qa";
+const ACCOUNT_TYPE = "Admin"
 
 async function loginUser(identifier, password) {
     let user;
@@ -114,7 +120,7 @@ async function loginUser(identifier, password) {
 
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
-    const isAdmin = user.username === ADMIN_USERNAME || user.email === ADMIN_EMAIL;
+    const isAdmin = user.username === ADMIN_USERNAME || user.email === ADMIN_EMAIL || user.accountType === ACCOUNT_TYPE;
 
     const sessionKey = crypto.randomBytes(16).toString('hex');
     const sessionData = {

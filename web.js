@@ -61,15 +61,23 @@ app.get('/admin', (req, res) => {
 });
 
 /**
- * Handles user registration.
+ * Handles user registration with new fields
  * @route POST /register
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
  */
 app.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        const user = await business.registerUser(username, email, password);
+        const { username, email, password, degreeProgram } = req.body;
+        
+        // Add account type handling
+        const userData = {
+            username,
+            email,
+            password,
+            degreeProgram: degreeProgram || null,
+            accountType: "Student" // Default value set server-side
+        };
+
+        const user = await business.registerUser(userData);
         res.send(`
             <p>User registered. Check your email for activation code.</p>
             <a href="/activate">Click here to enter your activation code</a>
@@ -79,6 +87,12 @@ app.post('/register', async (req, res) => {
         res.status(400).send(err.message);
     }
 });
+
+
+
+
+
+
 
 /**
  * Handles user login.
