@@ -51,6 +51,17 @@ async function registerUser(userData) {
     const existingUser = await persistence.findUserByUsername(username);
     if (existingUser) throw new Error('Username already taken');
 
+     // Validate password match
+    if (userData.password !== userData.repeatPassword) {
+        throw new Error('Passwords do not match');
+    }
+
+    // Validate password strength
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(userData.password)) {
+        throw new Error('Password must be 8+ characters with at least one letter and number');
+    }
+    
     // Hash password and generate activation
     const hashedPassword = await computeHash(password);
     const activationCode = crypto.randomBytes(16).toString('hex');

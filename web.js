@@ -66,24 +66,42 @@ app.get('/admin', (req, res) => {
  */
 app.post('/register', async (req, res) => {
     try {
-        const { username, email, password, degreeProgram } = req.body;
+        const { username, email, password, degreeProgram, repeatPassword } = req.body;
 
         const userData = {
             username,
             email,
             password,
+            repeatPassword,
             degreeProgram: degreeProgram || null,
             accountType: "Student"
         };
 
         const user = await business.registerUser(userData);
         res.send(`
-            <p>User registered. Check your email for activation code.</p>
-            <a href="/activate">Click here to enter your activation code</a>
+            <div style="padding: 20px; font-family: Arial, sans-serif;">
+                <p style="color: green; font-size: 18px;">
+                    Registration successful! Please check ${email} for activation code.
+                </p>
+                <p>
+                    <a href="/activate" style="color: blue; text-decoration: none;">
+                        ➡️ Go to Activation Page
+                    </a>
+                </p>
+            </div>
         `);
     } catch (err) {
-        console.error(err);
-        res.status(400).send(err.message);
+        console.error('Registration error:', err);
+        res.status(400).send(`
+            <div style="padding: 20px; font-family: Arial, sans-serif;">
+                <p style="color: red; font-size: 18px;"> Error: ${err.message}</p>
+                <p>
+                    <a href="/register" style="color: blue; text-decoration: none;">
+                        ← Return to Registration
+                    </a>
+                </p>
+            </div>
+        `);
     }
 });
 
