@@ -1,7 +1,5 @@
 const persistence = require('./persistence');
 const crypto = require("crypto");
-const nodemailer = require('nodemailer');
-
 
 /**
  * Computes a SHA-256 hash of a given password.
@@ -59,9 +57,9 @@ async function registerUser(userData) {
     // Validate password strength
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
-        throw new Error('Password must be 8+ characters with at least one letter and number');
+        throw new Error('Password must be minimum 8 characters and it must include at least one letter and number');
     }
-    
+
     // Hash password and generate activation
     const hashedPassword = await computeHash(password);
     const activationCode = crypto.randomBytes(16).toString('hex');
@@ -170,51 +168,39 @@ async function deleteSession(key) {
     return await persistence.deleteSession(key);
 }
 
-
-
 async function resetPassword(email) {
-    let details = await persistence.findUserByEmail(email)
-    if (details) {
-        let key = crypto.randomUUID()
-        details.resetkey = key
-        await persistence.updateUser(details)
+    const user = await persistence.findUserByEmail(email);
+    if (!user) return;
 
-        let transporter = nodemailer.createTransport({
-            host: "127.0.0.1",
-            port: 25
-        })
-
-        let body = `
-        A password reset request has been made for your account.  Please
-        follow <a href="http://127.0.0.1:8000/reset-password/?key=${key}">this link</a>
-        to set a new password for your account.`
-        await transporter.sendMail({
-            from: "lab9@infs3203.com",
-            to: email,
-            subject: "Password reset",
-            html: body
-        })
-        console.log(body)
-    }
-    return undefined
+    user.resetKey = crypto.randomUUID();
+    user.resetKeyExpiry = Date.now() + 120000; // 2 minutes
+    await persistence.updateUser(user);
+    console.log(`Password reset link: http://localhost:8080/activate-password?key=${encodeURIComponent(user.resetKey)}`);
 }
 
 async function checkReset(key) {
-    return persistence.checkReset(key)
+    return await persistence.checkReset(key);
 }
 
-async function setPassword(key, pw) {
-    let hash = crypto.createHash('sha256')
-    hash.update(pw)
-    let hashed_pw = hash.digest('hex')
 
-    await persistence.updatePassword(key, hashed_pw)
+async function setPassword(key, newPassword) {
+    const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
+    await persistence.updatePassword(key, hashedPassword);
+    
+    // Clear reset credentials
+    const user = await persistence.checkReset(key);
+    if (user) {
+        await persistence.updateUser({
+            email: user.email,
+            resetKey: null,
+            resetKeyExpiry: null
+        });
+    }
 }
 
 async function createRequest(requestData) {
     try {
         const result = await persistence.insertRequest(requestData);
-
         console.log(`\n[Request confirmation]`);
         console.log(`Username: ${requestData.studentName}`);
         console.log(`Email: ${requestData.studentEmail}`);
@@ -240,8 +226,6 @@ async function getUserRequests(email) {
         throw new Error('Error retrieving user requests');
     }
 }
-
-
 
 module.exports = {
     registerUser,

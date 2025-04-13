@@ -5,25 +5,25 @@
 ADMIN ACCOUNT DETAILS :
 username: admin
 email: admin@udst.edu.qa
-password: 12admin34
+password: 12ADMIN34
 
 
 ## Login to users account information
 
 username  -   Email id             - password
-hanan     -   hanans@gmail.com     - 12class34
-amna      -   amna@gmail.com       - asdfgh
-raghad    -   raghad@udst.com      - 1122
-gangster  -   gangsta@udst.edu.qa  - cant
-spiderman -   spider@gmail.com     - spy
-batman    -   bat@udst.edu.qa      - bats
-babyshark -   shark@gmail.com      - baby
-hihi      -   hihi@udst.edu.qa     - hihi
-sama      -   sama@yahoo.com       - sama
-project   -   pro@udst.edu.qa      - pro
-web2      -   web@gmail.com        - webs
-tessst2   -   tessst2@udst.com     - tesst2
-sooperman -   sooper@gmail.com     -
+hanan     -   hanans@gmail.com     - 12class34!!
+amna      -   amna@gmail.com       - amna1234
+raghad    -   raghad@udst.com      - raghad1234
+gangster  -   gangsta@udst.edu.qa  - cant1234
+spiderman -   spider@gmail.com     - spy12345
+batman    -   bat@udst.edu.qa      - bats1234
+babyshark -   shark@gmail.com      - baby0909
+hihi      -   hihi@udst.edu.qa     - hihi5678
+sama      -   sama@yahoo.com       - samaiscute12
+project   -   pro@udst.edu.qa      - prorated34
+web2      -   web@gmail.com        - webs3201
+tessst2   -   tessst2@udst.com     - tesst234
+sooperman -   sooper@gmail.com     - sooper123
 
 # group members hanan, raghad, amna
 
@@ -44,17 +44,19 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 ### Amna0712
 - Participated in the initial project setup
 - Created persistence, business, web.js
-- Contributed to the registration page
+- Setup mongodb databases and collections
+- Created the registration page
 - user profile setup
 - Fixed session keys
-- implemented redirection to the homepage after login.
-- Made changes to the persistence layer and
+- implemented redirection to the homepage after login
 - Created TTL for session key and set it to expire within 5 minutes
 - contributed to the activation code
+- Created activate_password, new_password, password-reset handlebars 
+- Implemented forgot password, if a user forgets password they can reset password using the reset key   provided in console.log
 - Editing the codes and comments
 - Modified the README file
 - formatting
-- and many more
+
 
 ### Raghad258
 - Participated in the initial project setup
@@ -67,7 +69,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - worked with verification
 - Modified the README file
 - formatting
-- and many more
+
 
 ### Hananam696
 - Participated in the initial project setup
@@ -89,8 +91,6 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
   and link to go back to login page to try again
 - formatting
 - after activation user gets a link to go to login page directly
-- and many more
-
 
 ## Extra Requirements Done
 

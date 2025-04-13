@@ -91,7 +91,7 @@ async function updateUser(userData) {
     await connectDatabase();
     await db.collection("users").updateOne(
         { email: userData.email },
-        { $set: { active: userData.active } }
+        { $set: userData } 
     );
 }
 
@@ -146,20 +146,30 @@ async function deleteSession(sessionKey) {
     await sessionCollection.deleteOne({ sessionKey });
 }
 
-
-async function updatePassword(key, pw) {
-    await connectDatabase()
-    let userCollection = db.collection('users')
-    let user = await userCollection.findOne({resetkey: key})
-    user.password = pw
-    delete user.resetkey
-    await userCollection.replaceOne({email:user.email}, user)
+async function updatePassword(key, hashedPassword) {
+    await connectDatabase();
+    const user = await db.collection("users").findOne({ resetKey: key });
+    
+    if (!user) throw new Error("Invalid reset key");
+    
+    await db.collection("users").updateOne(
+        { email: user.email },
+        { 
+            $set: { 
+                password: hashedPassword,
+                resetKey: null,
+                resetKeyExpiry: null 
+            } 
+        }
+    );
 }
 
 async function checkReset(key) {
     await connectDatabase();
-    const usersCollection = db.collection("users"); // Correct collection name
-    return usersCollection.findOne({ resetkey: key });
+    return db.collection("users").findOne({ 
+        resetKey: decodeURIComponent(key),
+        resetKeyExpiry: { $gt: Date.now() }
+    });
 }
 
 async function insertRequest(request) {

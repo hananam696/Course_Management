@@ -155,44 +155,103 @@ app.get('/request', (req, res) => {
     res.render('request', { layout: false });
 });
 
-
 app.get('/logout', (req, res) => {
     res.clearCookie('sessionKey');
     res.redirect('/');
 });
 
-
 app.get('/forgot-password', (req, res) => {
-    res.render('password_reset')
+    res.render('password-reset')
 })
 
 app.post('/forgot-password', async (req, res) => {
-   await business.resetPassword(req.body.email)
-    res.send("Check your email for a password reset link.")
-})
+    await business.resetPassword(req.body.email);
+    res.send(`
+        <div style="padding: 20px; font-family: Arial, sans-serif; text-align: center;">
+            <h3 style="color: green;">Reset instructions sent!</h3>
+            <p>Check your email for the activation link</p>
+            <p>or</p>
+            <a href="/activate-password" class="btn btn-secondary">
+                Enter Reset Key Manually
+            </a>
+            <div class="mt-3">
+                <a href="/login">Back to Login</a>
+            </div>
+        </div>
+    `);
+});
 
 app.get('/reset-password', async (req, res) => {
-    let checkReset = business.checkReset(req.query.key)
-    if (!checkReset) {
-        res.send("Invalid key")
-        return
+    const key = req.query.key;
+    const isValid = await business.checkReset(key);
+    
+    if (!isValid) {
+        return res.status(400).send(`
+            <div style="padding: 20px; font-family: Arial, sans-serif;">
+                <p style="color: red;">Invalid or expired reset link</p>
+                <a href="/forgot-password">Try again</a>
+            </div>
+        `);
     }
-    res.render("new_password", {
-        key: req.query.key
-    })
-})
+    
+    res.render('new-password', {
+        layout: false,
+        key: key
+    });
+});
 
 app.post('/reset-password', async (req, res) => {
-    let pw = req.body.password
-    let confirm = req.body.confirm
-    let key = req.body.key
-    if (pw != confirm) {
-        res.send("Password mismatch")
-        return
+    try {
+        const { password, confirm, key } = req.body;
+        
+        if (password !== confirm) {
+            return res.status(400).render('new-password', {
+                layout: false,
+                key: key,
+                error: 'Passwords do not match'
+            });
+        }
+        await business.setPassword(key, password);
+        res.render('reset-success', { layout: false });
+    } catch (err) {
+        res.status(400).render('new-password', {
+            layout: false,
+            key: req.body.key,
+            error: err.message
+        });
     }
-    await business.setPassword(key, pw)
-    res.redirect('/?message=Password changed')
-})
+});
+
+app.get('/activate-password', async (req, res) => {
+    try {
+        const key = req.query.key;
+        if (key) {
+            const isValid = await business.checkReset(key);
+            if (!isValid) throw new Error('Invalid or expired reset key');
+            return res.redirect(`/reset-password?key=${key}`);
+        }
+        res.render('reset-key', { layout: false });
+    } catch (err) {
+        res.render('reset-key', { 
+            layout: false,
+            error: err.message 
+        });
+    }
+});
+
+app.post('/activate-password', async (req, res) => {
+    try {
+        const { key } = req.body;
+        const isValid = await business.checkReset(key);
+        if (!isValid) throw new Error('Invalid or expired reset key');
+        res.redirect(`/reset-password?key=${key}`);
+    } catch (err) {
+        res.render('reset-key', {
+            layout: false,
+            error: err.message
+        });
+    }
+});
 
 app.post('/request', async (req, res) => {
     try {
