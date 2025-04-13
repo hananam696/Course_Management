@@ -186,11 +186,11 @@ app.post('/request', async (req, res) => {
         }
 
         const { category, description, email } = req.body;
-        
+
         if (email !== session.user.email) {
             return res.send(
                 `
-            <p style="color: red;">ensure correct email</p>
+            <p style="color: red;">Invalid Email: Your Email Must match the one with your account</p>
             <a href="/request">Click here to try again</a>`
             );
         }
