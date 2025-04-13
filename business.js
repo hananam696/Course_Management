@@ -200,19 +200,21 @@ async function setPassword(key, pw) {
     await persistence.updatePassword(key, hashed_pw)
 }
 
-//     // Convert estimated time to a date format and return
-//     currentTime.setMinutes(currentTime.getMinutes() + estimatedTime);
-//     return currentTime;
-// }
-
 async function createRequest(requestData) {
     try {
         const result = await persistence.insertRequest(requestData);
+
+        console.log(`\n[Request confirmation]`);
+        console.log(`Username: ${requestData.studentName}`);
+        console.log(`Email: ${requestData.studentEmail}`);
+        console.log(`Body: Hello ${requestData.studentName}, your request has been received successfully.`);
         return result;
     } catch (error) {
+        console.error('Error in createRequest:', error);
         throw new Error('Error creating request');
     }
 }
+
 
 module.exports = {
     registerUser,

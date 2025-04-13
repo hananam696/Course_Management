@@ -112,7 +112,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
 /**
  * Handles user account activation.
  * @route POST /activate
@@ -179,7 +178,6 @@ app.post('/reset-password', async (req, res) => {
 
 app.post('/request', async (req, res) => {
     try {
-        // Get session data from cookie
         const sessionKey = req.cookies.sessionKey;
         const session = await business.getSessionData(sessionKey);
 
@@ -187,36 +185,51 @@ app.post('/request', async (req, res) => {
             return res.redirect('/login');
         }
 
-        // Get form data from the request
-        const { fullname, email, category, description } = req.body;
-
-        // Ensure the provided email matches the logged-in user's email
+        const { category, description, email } = req.body;
+        
         if (email !== session.user.email) {
-            return res.status(400).send('Please enter the correct email address associated with your account.');
+            return res.send(
+                `
+            <p style="color: red;">ensure correct email</p>
+            <a href="/request">Click here to try again</a>`
+            );
         }
 
-        // Create request object
         const requestData = {
-            fullname,
             studentEmail: session.user.email,
             studentName: session.user.username,
             category,
             description,
             status: 'Pending',
-            createdAt: new Date().toLocaleString()
+            createdAt: new Date()
         };
 
-        // Call the business logic to save the request in MongoDB
         await business.createRequest(requestData);
+        res.send(`
+            <html>
+                <body>
+                    <p style="
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-size: 24px;
+                        color: green;
+                    ">Request submitted successfully! Confirmation sent to ${session.user.email}</p>
+                    <script>
+                        setTimeout(() => {
+                            window.location.href = '/request';
+                        }, 2000);
+                    </script>
+                </body>
+            </html>
+        `);
 
-        // Redirect to a success page or show a success message
-        res.redirect('/request?success=true');
     } catch (error) {
         console.error('Error creating request:', error);
         res.redirect('/request?error=Failed to submit request');
     }
 });
-
 
 
 // Start the server on port 8000
