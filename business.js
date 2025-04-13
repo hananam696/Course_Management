@@ -215,6 +215,22 @@ async function createRequest(requestData) {
     }
 }
 
+/**
+ * Retrieves all requests made by a specific user.
+ * @param {string} email - The email of the student whose requests should be fetched.
+ * @returns {Promise<Array>} - A list of requests made by the student.
+ */
+async function getUserRequests(email) {
+    try {
+        const requests = await persistence.getRequestsByEmail(email);
+        return requests;
+    } catch (error) {
+        console.error('Error in getUserRequests:', error);
+        throw new Error('Error retrieving user requests');
+    }
+}
+
+
 
 module.exports = {
     registerUser,
@@ -226,4 +242,6 @@ module.exports = {
     checkReset,
     setPassword,
     createRequest,
+    getUserRequests,
+    getUserRequests
 };

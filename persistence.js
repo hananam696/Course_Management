@@ -169,6 +169,12 @@ async function insertRequest(request) {
     return request;
 }
 
+async function getRequestsByEmail(email) {
+    await connectDatabase();
+    const requestCollection = db.collection("requests");
+    return await requestCollection.find({ studentEmail: email }).toArray();
+}
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -182,7 +188,7 @@ module.exports = {
     updateUser,
     updatePassword,
     checkReset,
-    insertRequest
-
+    insertRequest,
+    getRequestsByEmail
 
 };

@@ -190,7 +190,7 @@ app.post('/request', async (req, res) => {
         if (email !== session.user.email) {
             return res.send(
                 `
-            <p style="color: red;">Invalid Email: Your Email Must match the one with your account</p>
+            <p style="color: red;">Invalid Email: Your Email Must match the one with your account8</p>
             <a href="/request">Click here to try again</a>`
             );
         }
@@ -231,6 +231,30 @@ app.post('/request', async (req, res) => {
     }
 });
 
+app.get('/student/requests', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.redirect('/login');
+        }
+
+        // Add debug logging
+        console.log("Fetching requests for:", session.user.email);
+        const userRequests = await business.getUserRequests(session.user.email);
+        console.log("Retrieved requests:", userRequests); // Check what data you're getting
+
+        res.render('view_req', {
+            layout: false,
+            userRequests,
+            message: userRequests.length > 0 ? 'Your Requests' : 'You have no requests yet.'
+        });
+    } catch (error) {
+        console.error('Error fetching user requests:', error);
+        res.redirect('/?error=Failed to load requests');
+    }
+});
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
