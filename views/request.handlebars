@@ -5,15 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{{title}} | Student Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .form-container {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-    .form-control, .form-select {
-      width: 100%;
-    }
-  </style>
 </head>
 <body>
   <!-- Navigation -->
@@ -30,8 +21,8 @@
     </div>
   </nav>
 
-  <div class="container mt-4">
-    <div class="card form-container">
+  <div class="container mt-4" style="width: 83%; margin-left: 130px;" >
+    <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Dashboard</h4>
         <a href="/student/request/new" class="btn btn-primary">+ New Request</a>
@@ -39,58 +30,54 @@
       <div class="card-body">
         <div class="request">
           <form method="post">
-            <fieldset>
-              <!-- Full Name -->
-              <div class="mb-3">
-                <label for="fullname" class="form-label">Full Name: *</label>
-                <input type="text" class="form-control" id="fullname" name="fullname" required>
-              </div>
+              <fieldset class="firstfield">
+            <label for="fullname">Full Name: *</label>
+            <br>
+            <input type="text" class="form-control w-50" id="fullname" name="fullname">
+            <br></br>
+            <label for="email">Email: *</label>
+            <br>
+            <input type="email" class="form-control w-50" id="email" name="email">
+            <br></br>
+            <div class="col-md-6">
+              <label class="form-label">Select Semester *</label>
+              <br>
+              <select class="form-control" name="semester" style="width: 100%;">
+                <option value="spring-2024">Winter 2025</option>
+                <option value="fall-2023">Spring 2025</option>
+                <option value="fall-2023">Fal 2025</option>
+              </select>
+              <br>
+            </div>
+            <br>
+            <div class="col-md-7">
+              <label class="form-label">Request Category *</label>
+              <br>
+              <select class="form-control" name="category" style="width: 86%">  <!-- Fixed width -->
+                <option value="Scholarship">Scholarship Request</option>
+                <option value="Graduation">Apply for Graduation</option>
+                <option value="finance">Financial</option>
+                <option value="employment">Apply for Student Employment</option>
+                <option value="other">Other</option>
+              </select>
+              <br>
+            </div>
+            <br>
+            <div class="mb-3">
+              <label class="form-label">Description: </label>
+              <br>
+              <textarea class="form-control w-50" name="description"></textarea>
+            </div>
+            <br>
 
-              <!-- Email -->
-              <div class="mb-3">
-                <label for="email" class="form-label">Email: *</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-              </div>
-
-              <div class="row">
-                <!-- Semester -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Select Semester *</label>
-                  <select class="form-select" name="semester" required>
-                    <option value="winter-2025">Winter 2025</option>
-                    <option value="spring-2025">Spring 2025</option>
-                    <option value="fall-2025">Fall 2025</option>
-                  </select>
-                </div>
-
-                <!-- Request Category -->
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Request Category *</label>
-                  <select class="form-select" name="category" required>
-                    <option value="Scholarship">Scholarship Request</option>
-                    <option value="Graduation">Apply for Graduation</option>
-                    <option value="finance">Financial</option>
-                    <option value="employment">Apply for Student Employment</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Description -->
-              <div class="mb-3">
-                <label class="form-label">Description: *</label>
-                <textarea class="form-control" name="description" rows="4" required></textarea>
-              </div>
-
-              <!-- Submit Button -->
-              <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Submit Request</button>
-              </div>
-            </fieldset>
-          </form>
-        </div>
+             <!-- Submit Button -->
+             <div class="mb-3">
+              <button type="submit" class="btn btn-primary">Submit Request</button>
+            </div>
+          </fieldset>
+        </form>
       </div>
-    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

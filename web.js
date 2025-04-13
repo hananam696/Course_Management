@@ -67,13 +67,13 @@ app.get('/admin', (req, res) => {
 app.post('/register', async (req, res) => {
     try {
         const { username, email, password, degreeProgram } = req.body;
-        
+
         const userData = {
             username,
             email,
             password,
             degreeProgram: degreeProgram || null,
-            accountType: "Student" 
+            accountType: "Student"
         };
 
         const user = await business.registerUser(userData);
@@ -93,31 +93,56 @@ app.post('/register', async (req, res) => {
  * @param {Request} req - Express request object
  * @param {Response} res - Express response object
  */
+// app.post('/login', async (req, res) => {
+//     try {
+//         const { identifier, password } = req.body;
+//         const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
+//         res.cookie('sessionKey', sessionKey, {
+//             httpOnly: true,
+//             secure: process.env.NODE_ENV === 'production',
+//             maxAge: 5 * 60 * 1000,
+//         });
+//         const redirectUrl = isAdmin ? '/admin' : '/login';
+//         res.send(`
+//             <p>Login successful! Redirecting...</p>
+//             <script>
+//                 setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500);
+//             </script>
+//         `);
+//     } catch (err) {
+//         console.error(err);
+//         res.send(`
+//             <p style="color: red;">${err.message}</p>
+//             <a href="/login">Click here to try again</a>
+//            `
+//         )
+//     }
+// });
+
 app.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body;
         const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
+
+        // Set session cookie
         res.cookie('sessionKey', sessionKey, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 5 * 60 * 1000,
+            httpOnly: true, // For security, cookie can only be accessed by the server
+            secure: process.env.NODE_ENV === 'production', // Only in production (for HTTPS)
+            maxAge: 5 * 60 * 1000, // Cookie expires after 5 minutes
         });
-        const redirectUrl = isAdmin ? '/admin' : '/login';
-        res.send(`
-            <p>Login successful! Redirecting...</p>
-            <script>
-                setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500);
-            </script>
-        `);
+
+        // Redirect to the appropriate page based on user role
+        const redirectUrl = isAdmin ? '/admin' : '/request';
+        res.redirect(redirectUrl);  // Perform the actual redirect
     } catch (err) {
         console.error(err);
         res.send(`
             <p style="color: red;">${err.message}</p>
             <a href="/login">Click here to try again</a>
-           `
-        )
+        `);
     }
 });
+
 
 /**
  * Handles user account activation.
@@ -140,12 +165,11 @@ app.post('/activate', async (req, res) => {
     }
 });
 
-/**
- * Logs the user out by clearing the session cookie.
- * @route GET /logout
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
- */
+app.get('/request', (req, res) => {
+    res.render('request', { layout: false });
+});
+
+
 app.get('/logout', (req, res) => {
     res.clearCookie('sessionKey');
     res.redirect('/');

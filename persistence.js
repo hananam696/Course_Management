@@ -162,6 +162,13 @@ async function checkReset(key) {
     return usersCollection.findOne({ resetkey: key });
 }
 
+async function insertRequest(request) {
+    await connectDatabase();
+    const requestCollection = db.collection("requests");
+    await requestCollection.insertOne(request);
+    return request;
+}
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -174,7 +181,8 @@ module.exports = {
     deleteSession,
     updateUser,
     updatePassword,
-    checkReset
-    
-    
+    checkReset,
+    insertRequest
+
+
 };

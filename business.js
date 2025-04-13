@@ -41,13 +41,13 @@ function isValidEmail(email) {
  */
 async function registerUser(userData) {
     const { username, email, password, degreeProgram } = userData;
-    
+
     if (!isValidEmail(email)) throw new Error('Invalid email format');
 
     // Check existing users
     const existingEmail = await persistence.findUserByEmail(email);
     if (existingEmail) throw new Error('Email already exists');
-    
+
     const existingUser = await persistence.findUserByUsername(username);
     if (existingUser) throw new Error('Username already taken');
 
@@ -65,7 +65,7 @@ async function registerUser(userData) {
         password: hashedPassword,
         activationCode: hashedActivationCode,
         active: false,
-        accountType: "Student", 
+        accountType: "Student",
         degreeProgram: degreeProgram || null
     });
 }
@@ -167,7 +167,7 @@ async function resetPassword(email) {
         let key = crypto.randomUUID()
         details.resetkey = key
         await persistence.updateUser(details)
-        
+
         let transporter = nodemailer.createTransport({
             host: "127.0.0.1",
             port: 25
@@ -198,6 +198,80 @@ async function setPassword(key, pw) {
     let hashed_pw = hash.digest('hex')
 
     await persistence.updatePassword(key, hashed_pw)
+}
+
+
+async function createRequest(user, category, additionalInfo) {
+    // Validate the category and additional info if necessary
+    if (!category) {
+        throw new Error('Request category is required');
+    }
+
+    // Estimate processing time based on current requests in the queue
+    const estimatedTime = await estimateProcessingTime(category);
+
+    // Create the request object
+    const request = {
+        userId: user.email,  // Assuming `user` is the logged-in user object
+        category: category,
+        additionalInfo: additionalInfo || '',
+        timestamp: new Date(),
+        estimatedTime: estimatedTime,
+        status: 'Pending',  // Default status
+    };
+
+    // Insert the request into the database (persist it)
+    return persistence.insertRequest(request);
+}
+
+async function estimateProcessingTime(category) {
+    // Retrieve the current number of requests in the given category queue
+    const requestCollection = await persistence.connectDatabase().then(db => db.collection('requests'));
+    const requestCount = await requestCollection.countDocuments({ category });
+
+    // Assume each request takes 15 minutes to process
+    const processingTimePerRequest = 15;  // in minutes
+
+    // Calculate estimated processing time based on the number of requests in the queue
+    const estimatedTime = requestCount * processingTimePerRequest;  // in minutes
+
+    // Assuming you are calculating for working hours, adjust accordingly (e.g., considering office hours)
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+
+    // If the request is near the end of the workday, add time for the next day
+    if (currentHour >= 17) {
+        estimatedTime += 24 * 60;  // Add 24 hours (next working day)
+    }
+
+    // Convert estimated time to a date format and return
+    currentTime.setMinutes(currentTime.getMinutes() + estimatedTime);
+    return currentTime;
+}
+
+async function estimateProcessingTime(category) {
+    // Retrieve the current number of requests in the given category queue
+    const requestCollection = await persistence.connectDatabase().then(db => db.collection('requests'));
+    const requestCount = await requestCollection.countDocuments({ category });
+
+    // Assume each request takes 15 minutes to process
+    const processingTimePerRequest = 15;  // in minutes
+
+    // Calculate estimated processing time based on the number of requests in the queue
+    const estimatedTime = requestCount * processingTimePerRequest;  // in minutes
+
+    // Assuming you are calculating for working hours, adjust accordingly (e.g., considering office hours)
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+
+    // If the request is near the end of the workday, add time for the next day
+    if (currentHour >= 17) {
+        estimatedTime += 24 * 60;  // Add 24 hours (next working day)
+    }
+
+    // Convert estimated time to a date format and return
+    currentTime.setMinutes(currentTime.getMinutes() + estimatedTime);
+    return currentTime;
 }
 
 
