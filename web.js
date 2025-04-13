@@ -87,37 +87,6 @@ app.post('/register', async (req, res) => {
     }
 });
 
-/**
- * Handles user login.
- * @route POST /login
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
- */
-// app.post('/login', async (req, res) => {
-//     try {
-//         const { identifier, password } = req.body;
-//         const { sessionKey, isAdmin } = await business.loginUser(identifier, password);
-//         res.cookie('sessionKey', sessionKey, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             maxAge: 5 * 60 * 1000,
-//         });
-//         const redirectUrl = isAdmin ? '/admin' : '/login';
-//         res.send(`
-//             <p>Login successful! Redirecting...</p>
-//             <script>
-//                 setTimeout(() => { window.location.href = "${redirectUrl}"; }, 1500);
-//             </script>
-//         `);
-//     } catch (err) {
-//         console.error(err);
-//         res.send(`
-//             <p style="color: red;">${err.message}</p>
-//             <a href="/login">Click here to try again</a>
-//            `
-//         )
-//     }
-// });
 
 app.post('/login', async (req, res) => {
     try {
@@ -207,6 +176,46 @@ app.post('/reset-password', async (req, res) => {
     await business.setPassword(key, pw)
     res.redirect('/?message=Password changed')
 })
+
+app.post('/request', async (req, res) => {
+    try {
+        // Get session data from cookie
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.redirect('/login');
+        }
+
+        // Get form data from the request
+        const { fullname, email, category, description } = req.body;
+
+        // Ensure the provided email matches the logged-in user's email
+        if (email !== session.user.email) {
+            return res.status(400).send('Please enter the correct email address associated with your account.');
+        }
+
+        // Create request object
+        const requestData = {
+            fullname,
+            studentEmail: session.user.email,
+            studentName: session.user.username,
+            category,
+            description,
+            status: 'Pending',
+            createdAt: new Date().toLocaleString()
+        };
+
+        // Call the business logic to save the request in MongoDB
+        await business.createRequest(requestData);
+
+        // Redirect to a success page or show a success message
+        res.redirect('/request?success=true');
+    } catch (error) {
+        console.error('Error creating request:', error);
+        res.redirect('/request?error=Failed to submit request');
+    }
+});
 
 
 
