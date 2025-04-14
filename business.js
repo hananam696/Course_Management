@@ -308,34 +308,6 @@ async function formatQatarDate(date) {
     }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
 }
 
-// Add these methods to your business layer
-async function cancelRequest(requestId, userEmail) {
-    // 1. Verify the request belongs to the user
-    const request = await persistence.getRequestById(requestId);
-    if (!request || request.studentEmail !== userEmail) {
-        throw new Error('Request not found or not authorized');
-    }
-
-    // 2. Check if request can be cancelled (only pending requests)
-    if (request.status !== 'Pending') {
-        throw new Error('Only pending requests can be cancelled');
-    }
-
-    // 3. Update status to cancelled
-    return await persistence.updateRequestStatus(requestId, 'Cancelled');
-}
-
-async function getCancelledRequests(email) {
-    return persistence.getCancelledRequests(email);
-}
-
-// Update your exports
-module.exports = {
-    // ... your existing exports ...
-    cancelRequest,
-    getCancelledRequests
-};
-
 module.exports = {
     registerUser,
     activateUser,
@@ -351,7 +323,5 @@ module.exports = {
     getRequestsBySemester,
     getPendingRequestCount,
     calculateEstimatedTime,
-    formatQatarDate,
-    getCancelledRequests,
-    cancelRequest
+    formatQatarDate
 };
