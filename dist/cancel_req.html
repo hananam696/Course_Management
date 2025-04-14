@@ -13,6 +13,7 @@
           <a class="nav-link" href="/request">Dashboard</a>
           <a class="nav-link active" href="/student/requests">My Requests</a>
           <a class="nav-link" href="/student/cancel">Cancelled Requests</a>
+          <a class="nav-link" href="/student/request/new">New Request</a>
           <a class="nav-link" href="/auth/logout">Logout</a>
         </div>
       </div>
@@ -25,7 +26,7 @@
         </div>
         <div class="card-body">
           <div class="col-md-6 mb-4">
-            <form action="/student/requests" method="GET">
+            <form action="/student/requests/cancel" method="GET">
               <label class="form-label">Select Semester *</label>
               <br>
               <select class="form-control" id="semester" name="semester">

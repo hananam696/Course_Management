@@ -14,7 +14,8 @@
       <div class="navbar-nav">
         <a class="nav-link" href="/request">Dashboard</a>
         <a class="nav-link active" href="/student/requests">My Requests</a>
-        <a class="nav-link" href="/student/cancel">Cancelled Requests</a>
+        <a class="nav-link active" href="/student/cancel">Cancelled Requests</a>
+        <a class="nav-link" href="/student/request/new">New Request</a>
         <a class="nav-link" href="/auth/logout">Logout</a>
       </div>
     </div>
@@ -51,28 +52,24 @@
                 <th>Status</th>
                 <th>Created At</th>
                 <th>Estimated Process Time</th>
+                <th>Cancel Request</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               {{#each userRequests}}
               <tr>
-                <td>{{@index}}</td>
+                <td>{{add @index 1}}</td>
                 <td>{{this.category}}</td>
                 <td><span class="badge bg-warning">Pending</span></td>
-                <td>{{this.createdAt}}</td>
-                <td>{{this.estimatedTime}}</td>
-               <td>
+                <td>{{formatDate this.createdAt}}</td>
+                <td>{{formatDate this.estimatedTime}}</td>
                 <td>
-  <form action="/student/requests/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
-    <!-- Hidden field to pass the requestId -->
-    <input type="hidden" name="requestId" value="{{this._id}}">
-    <button type="submit" class="btn btn-primary" style="background-color: red;">Cancel Request</button>
-  </form>
-</td>
-
-</td>
-
+                  <form action="/student/requests/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                    <input type="hidden" name="requestId" value="{{this._id}}">
+                    <button type="submit" class="btn btn-primary" style="background-color: red;">Cancel Request</button>
+                  </form>
+                </td>
                 <td><button type="view" class="btn btn-primary">View Details</button></td>
               </tr>
               {{/each}}
@@ -101,6 +98,6 @@
       }
     }
   });
-</script>
+  </script>
 </body>
 </html>

@@ -308,6 +308,40 @@ async function formatQatarDate(date) {
     }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
 }
 
+async function getCancelledRequests(email) {
+    return persistence.getCancelledRequests(email);
+}
+
+async function cancelRequest(requestId, userEmail) {
+    try {
+        // Convert string ID to ObjectId if needed
+        const objectId = new ObjectId(requestId);
+        const request = await persistence.getRequestById(objectId);
+        
+        if (!request || request.studentEmail !== userEmail) {
+            throw new Error('Request not found or not authorized');
+        }
+
+        if (request.status !== 'Pending') {
+            throw new Error('Only pending requests can be cancelled');
+        }
+
+        const updateData = {
+            status: 'Cancelled',
+            cancelledAt: new Date(),
+            updatedAt: new Date()
+        };
+        
+        const updatedRequest = await persistence.updateRequest(objectId, updateData);
+        return updatedRequest;
+    } catch (error) {
+        console.error('Error in cancelRequest:', error.message);
+        throw error;
+    }
+}
+
+
+
 module.exports = {
     registerUser,
     activateUser,
@@ -323,5 +357,7 @@ module.exports = {
     getRequestsBySemester,
     getPendingRequestCount,
     calculateEstimatedTime,
-    formatQatarDate
+    formatQatarDate,
+    cancelRequest,
+    getCancelledRequests
 };

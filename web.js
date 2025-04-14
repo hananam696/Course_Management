@@ -18,8 +18,26 @@ app.engine('handlebars', handlebars.engine());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));
-
-
+app.engine('handlebars', handlebars.engine({
+    helpers: {
+        add: function(value, addition) {
+            return value + addition;
+        },
+        formatDate: function(timestamp) {
+            const date = new Date(timestamp);
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+    }
+}));
 
 /**
  * Renders the login page, displaying a message if the user has a session cookie.
@@ -325,17 +343,21 @@ app.post('/request', async (req, res) => {
             return res.redirect('/login');
         }
 
-        const { category, description, email, semester} = req.body;
+        const { category, description, email, semester } = req.body;
 
         if (email !== session.user.email) {
-            return res.send(
-                `
-            <p style="color: red;">Invalid Email: Your Email Must match the one with your account8</p>
+            return res.send(`
+            <p style="color: red;">Invalid Email: Your Email Must match the one with your account</p>
             <a href="/request">Click here to try again</a>`
             );
         }
+
         const pendingCount = await business.getPendingRequestCount();
-        const estimatedTime = await business.calculateEstimatedTime(pendingCount + 1);
+        const createdAt = Date.now();
+        
+        // Calculate estimated time (24 hours after creation)
+        const estimatedTime = new Date(createdAt);
+        estimatedTime.setHours(estimatedTime.getHours() + 24);
 
         const requestData = {
             studentEmail: session.user.email,
@@ -344,8 +366,9 @@ app.post('/request', async (req, res) => {
             description,
             status: 'Pending',
             semester,
-            createdAt : Date.now(),
-            estimatedTime
+            createdAt: createdAt,
+            estimatedTime: estimatedTime.getTime(),
+            
         };
 
         await business.createRequest(requestData);
@@ -374,32 +397,6 @@ app.post('/request', async (req, res) => {
         res.redirect('/request?error=Failed to submit request');
     }
 });
-
-// app.get('/student/requests', async (req, res) => {
-//     try {
-//         const sessionKey = req.cookies.sessionKey;
-//         const session = await business.getSessionData(sessionKey);
-
-//         if (!session || !session.user) {
-//             return res.redirect('/login');
-//         }
-
-//         // Add debug logging
-//         console.log("Fetching requests for:", session.user.email);
-//         const userRequests = await business.getUserRequests(session.user.email);
-//         console.log("Retrieved requests:", userRequests); // Check what data you're getting
-
-//         res.render('view_req', {
-//             layout: false,
-//             userRequests,
-//             message: userRequests.length > 0 ? 'Your Requests' : 'You have no requests yet.'
-//         });
-//     } catch (error) {
-//         console.error('Error fetching user requests:', error);
-//         res.redirect('/?error=Failed to load requests');
-//     }
-// });
-
 
 app.get('/student/requests', async (req, res) => {
     try {
@@ -434,7 +431,87 @@ app.get('/student/requests', async (req, res) => {
     }
 });
 
-  
+
+
+// Example route for cancelled requests
+app.get('/student/cancel', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.redirect('/login');
+        }
+
+        const semester = req.query.semester;
+        let cancelledRequests = await business.getCancelledRequests(session.user.email);
+
+        // Filter requests by exact semester match
+        if (semester && semester !== 'all-2025') {
+            cancelledRequests = cancelledRequests.filter(request => {
+                return request.semester === semester;
+            });
+        }
+
+        res.render('cancel_req', {
+            layout: false,
+            cancelledRequests,
+            selectedSemester: semester,  // Pass the selected semester to the template
+            message: semester && semester !== 'all-2025'
+                ? `Showing cancelled requests for ${semester}`
+                : 'Showing all cancelled requests'
+        });
+    } catch (error) {
+        console.error('Error fetching cancelled requests:', error);
+        res.redirect('/?error=Failed to load cancelled requests');
+    }
+});
+
+/*
+// Cancel a specific request
+app.post('/student/requests/cancel', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { requestId } = req.body;
+        const cancelledRequest = await business.cancelRequest(requestId, session.user.email);
+
+        // Redirect to the "Cancelled Requests" page after cancellation
+        res.redirect('/student/cancel');
+    } catch (error) {
+        console.error('Error cancelling request:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+*/
+
+// Cancel a specific request
+app.post('/student/requests/cancel', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const { requestId } = req.body;
+        if (!requestId) {
+            return res.status(400).json({ success: false, error: 'Request ID is required' });
+        }
+
+        await business.cancelRequest(requestId, session.user.email);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error cancelling request:', error);
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
