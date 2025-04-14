@@ -91,7 +91,7 @@ async function updateUser(userData) {
     await connectDatabase();
     await db.collection("users").updateOne(
         { email: userData.email },
-        { $set: userData } 
+        { $set: userData }
     );
 }
 
@@ -149,24 +149,24 @@ async function deleteSession(sessionKey) {
 async function updatePassword(key, hashedPassword) {
     await connectDatabase();
     const user = await db.collection("users").findOne({ resetKey: key });
-    
+
     if (!user) throw new Error("Invalid reset key");
-    
+
     await db.collection("users").updateOne(
         { email: user.email },
-        { 
-            $set: { 
+        {
+            $set: {
                 password: hashedPassword,
                 resetKey: null,
-                resetKeyExpiry: null 
-            } 
+                resetKeyExpiry: null
+            }
         }
     );
 }
 
 async function checkReset(key) {
     await connectDatabase();
-    return db.collection("users").findOne({ 
+    return db.collection("users").findOne({
         resetKey: decodeURIComponent(key),
         resetKeyExpiry: { $gt: Date.now() }
     });
@@ -185,6 +185,11 @@ async function getRequestsByEmail(email) {
     return await requestCollection.find({ studentEmail: email }).toArray();
 }
 
+async function getPendingRequestCount() {
+    await connectDatabase();
+    return db.collection("requests").countDocuments({ status: "Pending" });
+}
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -199,6 +204,6 @@ module.exports = {
     updatePassword,
     checkReset,
     insertRequest,
-    getRequestsByEmail
-
+    getRequestsByEmail,
+    getPendingRequestCount
 };

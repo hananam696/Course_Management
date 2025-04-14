@@ -19,6 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'dist')));
 
+
+
 /**
  * Renders the login page, displaying a message if the user has a session cookie.
  * @route GET /
@@ -271,6 +273,8 @@ app.post('/request', async (req, res) => {
             <a href="/request">Click here to try again</a>`
             );
         }
+        const pendingCount = await business.getPendingRequestCount();
+        const estimatedTime = await business.calculateEstimatedTime(pendingCount + 1);
 
         const requestData = {
             studentEmail: session.user.email,
@@ -279,7 +283,8 @@ app.post('/request', async (req, res) => {
             description,
             status: 'Pending',
             semester,
-            createdAt: new Date()
+            createdAt : Date.now(),
+            estimatedTime
         };
 
         await business.createRequest(requestData);

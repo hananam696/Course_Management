@@ -252,6 +252,62 @@ async function getRequestsBySemester(email, semester) {
     }
 }
 
+async function getPendingRequestCount() {
+    return await persistence.getPendingRequestCount();
+}
+
+async function calculateEstimatedTime(queuePosition) {
+    const WORKING_HOURS = { start: 8, end: 17 }; // 8am-5pm
+    const MINUTES_PER_REQUEST = 15;
+
+    let estimatedTime = new Date();
+    let minutesRemaining = queuePosition * MINUTES_PER_REQUEST;
+
+    // Adjust for current time outside working hours/weekends
+    while (estimatedTime.getHours() < WORKING_HOURS.start ||
+           estimatedTime.getHours() >= WORKING_HOURS.end ||
+           estimatedTime.getDay() === 0 || // Sunday
+           estimatedTime.getDay() === 6) { // Saturday
+        // Move to next working day at 8am
+        estimatedTime.setDate(estimatedTime.getDate() + 1);
+        estimatedTime.setHours(WORKING_HOURS.start, 0, 0, 0);
+    }
+
+    // Process time in working hours only
+    while (minutesRemaining > 0) {
+        const endOfDay = new Date(estimatedTime);
+        endOfDay.setHours(WORKING_HOURS.end, 0, 0, 0);
+
+        const availableMinutes = (endOfDay - estimatedTime) / (1000 * 60);
+        const minutesToProcess = Math.min(availableMinutes, minutesRemaining);
+
+        estimatedTime = new Date(estimatedTime.getTime() + minutesToProcess * 60000);
+        minutesRemaining -= minutesToProcess;
+
+        if (minutesRemaining > 0) {
+            // Move to next working day
+            estimatedTime.setDate(estimatedTime.getDate() + 1);
+            estimatedTime.setHours(WORKING_HOURS.start, 0, 0, 0);
+        }
+    }
+
+    return estimatedTime;
+}
+
+async function formatQatarDate(date) {
+    if (!date) return 'N/A';
+
+    return new Date(date).toLocaleString('en-US', {
+        timeZone: 'Asia/Qatar',
+        weekday: 'long',      // "Monday"
+        month: 'long',        // "April"
+        day: 'numeric',       // "14"
+        hour: '2-digit',      // "07"
+        minute: '2-digit',    // "17"
+        hour12: true          // AM/PM
+    }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -264,5 +320,8 @@ module.exports = {
     createRequest,
     getUserRequests,
     getUserRequests,
-    getRequestsBySemester
+    getRequestsBySemester,
+    getPendingRequestCount,
+    calculateEstimatedTime,
+    formatQatarDate
 };
