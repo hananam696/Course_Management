@@ -314,100 +314,29 @@ app.post('/request', async (req, res) => {
     }
 });
 
-// app.get('/student/requests', async (req, res) => {
-//     try {
-//         const sessionKey = req.cookies.sessionKey;
-//         const session = await business.getSessionData(sessionKey);
 
-//         if (!session || !session.user) {
-//             return res.redirect('/login');
-//         }
-
-//         // Add debug logging
-//         console.log("Fetching requests for:", session.user.email);
-//         const userRequests = await business.getUserRequests(session.user.email);
-//         console.log("Retrieved requests:", userRequests); // Check what data you're getting
-
-//         res.render('view_req', {
-//             layout: false,
-//             userRequests,
-//             message: userRequests.length > 0 ? 'Your Requests' : 'You have no requests yet.'
-//         });
-//     } catch (error) {
-//         console.error('Error fetching user requests:', error);
-//         res.redirect('/?error=Failed to load requests');
-//     }
-// });
 app.get('/student/requests', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
         const session = await business.getSessionData(sessionKey);
 
         if (!session || !session.user) {
-            return res.redirect('/login');
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const semester = req.query.semester;
-        let userRequests = await business.getUserRequests(session.user.email);
+        const { semester } = req.query;
+        let userRequests = await business.getUserRequests(session.user.email, semester);
 
-        // Filter requests by exact semester match
-        if (semester && semester !== 'all-2025') {
-            userRequests = userRequests.filter(request => {
-                return request.semester === semester;
-            });
-        }
+        // Filter out requests with 'Cancelled' status
+        userRequests = userRequests.filter(request => request.status !== 'Cancelled');
 
-        res.render('view_req', {
-            layout: false,
-            userRequests,
-            selectedSemester: semester,  // Pass the selected semester to the template
-            message: semester && semester !== 'all-2025'
-                ? `Showing ${semester} requests`
-                : 'Showing all requests'
-        });
+        res.render('view_req', { userRequests, selectedSemester: semester });
     } catch (error) {
-        console.error('Error fetching user requests:', error);
-        res.redirect('/?error=Failed to load requests');
+        console.error('Error fetching requests:', error);
+        res.status(400).json({ error: error.message });
     }
 });
 
-
-/**
- * Cancels a student's request by ID
- * @route POST /student/cancel
- */
-// app.post('/student/cancel', async (req, res) => {
-//     try {
-//         const sessionKey = req.cookies.sessionKey;
-//         const session = await business.getSessionData(sessionKey);
-
-//         if (!session || !session.user) {
-//             return res.status(401).send('Unauthorized. Please log in again.');
-//         }
-
-//         const { requestId } = req.body;
-//         if (!requestId) {
-//             return res.status(400).send('Missing request ID.');
-//         }
-
-//         const success = await business.cancelRequest(session.user.email, requestId);
-
-//         if (success) {
-//             res.send(`
-//                 <p style="color: green;">Request cancelled successfully.</p>
-//                 <a href="/student/requests">Go back to Requests</a>
-//             `);
-//         } else {
-//             res.status(403).send(`
-//                 <p style="color: red;">Unable to cancel request. Either it doesn’t exist or is already processed.</p>
-//                 <a href="/student/requests">Go back</a>
-//             `);
-//         }
-//     } catch (err) {
-//         console.error('Error cancelling request:', err);
-//         res.status(500).send('Server error. Try again later.');
-//     }
-// });
 
 // Example route for cancelled requests
 app.get('/student/cancel', async (req, res) => {
@@ -444,7 +373,6 @@ app.get('/student/cancel', async (req, res) => {
 });
 
 
-// Cancel a specific request
 app.post('/student/requests/cancel', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -455,17 +383,19 @@ app.post('/student/requests/cancel', async (req, res) => {
         }
 
         const { requestId } = req.body;
-        const cancelledRequest = await business.cancelRequest(requestId, session.user.email);
+        const objectId = new ObjectId(requestId);  // Convert to ObjectId
 
-        res.json({
-            success: true,
-            request: cancelledRequest
-        });
+        // Update the request's status to 'Cancelled'
+        const cancelledRequest = await business.cancelRequest(objectId, session.user.email);
+
+        // Redirect to the "Cancelled Requests" page after cancellation
+        res.redirect('/student/cancel');
     } catch (error) {
         console.error('Error cancelling request:', error);
         res.status(400).json({ error: error.message });
     }
 });
+
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
