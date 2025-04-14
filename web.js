@@ -184,7 +184,7 @@ app.post('/forgot-password', async (req, res) => {
 app.get('/reset-password', async (req, res) => {
     const key = req.query.key;
     const isValid = await business.checkReset(key);
-    
+
     if (!isValid) {
         return res.status(400).send(`
             <div style="padding: 20px; font-family: Arial, sans-serif;">
@@ -193,7 +193,7 @@ app.get('/reset-password', async (req, res) => {
             </div>
         `);
     }
-    
+
     res.render('new-password', {
         layout: false,
         key: key
@@ -203,7 +203,7 @@ app.get('/reset-password', async (req, res) => {
 app.post('/reset-password', async (req, res) => {
     try {
         const { password, confirm, key } = req.body;
-        
+
         if (password !== confirm) {
             return res.status(400).render('new-password', {
                 layout: false,
@@ -232,9 +232,9 @@ app.get('/activate-password', async (req, res) => {
         }
         res.render('reset-key', { layout: false });
     } catch (err) {
-        res.render('reset-key', { 
+        res.render('reset-key', {
             layout: false,
-            error: err.message 
+            error: err.message
         });
     }
 });
@@ -262,7 +262,7 @@ app.post('/request', async (req, res) => {
             return res.redirect('/login');
         }
 
-        const { category, description, email } = req.body;
+        const { category, description, email, semester} = req.body;
 
         if (email !== session.user.email) {
             return res.send(
@@ -278,6 +278,7 @@ app.post('/request', async (req, res) => {
             category,
             description,
             status: 'Pending',
+            semester,
             createdAt: new Date()
         };
 
@@ -308,6 +309,30 @@ app.post('/request', async (req, res) => {
     }
 });
 
+// app.get('/student/requests', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session || !session.user) {
+//             return res.redirect('/login');
+//         }
+
+//         // Add debug logging
+//         console.log("Fetching requests for:", session.user.email);
+//         const userRequests = await business.getUserRequests(session.user.email);
+//         console.log("Retrieved requests:", userRequests); // Check what data you're getting
+
+//         res.render('view_req', {
+//             layout: false,
+//             userRequests,
+//             message: userRequests.length > 0 ? 'Your Requests' : 'You have no requests yet.'
+//         });
+//     } catch (error) {
+//         console.error('Error fetching user requests:', error);
+//         res.redirect('/?error=Failed to load requests');
+//     }
+// });
 app.get('/student/requests', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -317,21 +342,30 @@ app.get('/student/requests', async (req, res) => {
             return res.redirect('/login');
         }
 
-        // Add debug logging
-        console.log("Fetching requests for:", session.user.email);
-        const userRequests = await business.getUserRequests(session.user.email);
-        console.log("Retrieved requests:", userRequests); // Check what data you're getting
+        const semester = req.query.semester;
+        let userRequests = await business.getUserRequests(session.user.email);
+
+        // Filter requests by exact semester match
+        if (semester && semester !== 'all-2025') {
+            userRequests = userRequests.filter(request => {
+                return request.semester === semester;
+            });
+        }
 
         res.render('view_req', {
             layout: false,
             userRequests,
-            message: userRequests.length > 0 ? 'Your Requests' : 'You have no requests yet.'
+            selectedSemester: semester,  // Pass the selected semester to the template
+            message: semester && semester !== 'all-2025'
+                ? `Showing ${semester} requests`
+                : 'Showing all requests'
         });
     } catch (error) {
         console.error('Error fetching user requests:', error);
         res.redirect('/?error=Failed to load requests');
     }
 });
+
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));

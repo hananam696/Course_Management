@@ -186,7 +186,7 @@ async function checkReset(key) {
 async function setPassword(key, newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
     await persistence.updatePassword(key, hashedPassword);
-    
+
     // Clear reset credentials
     const user = await persistence.checkReset(key);
     if (user) {
@@ -227,6 +227,31 @@ async function getUserRequests(email) {
     }
 }
 
+/**
+ * NEW FUNCTION: Gets requests filtered by semester and email
+ * @param {string} email - Student email
+ * @param {string} semester - Semester value (e.g., "spring-2024")
+ * @returns {Promise<Array>} Filtered requests
+ */
+async function getRequestsBySemester(email, semester) {
+    try {
+        const allRequests = await persistence.getRequestsByEmail(email);
+
+        if (semester === 'all-2023') {
+            return allRequests; // Return all if "All Semesters" selected
+        }
+
+        const targetYear = semester.split('-')[1];
+        return allRequests.filter(request => {
+            const requestYear = new Date(request.createdAt).getFullYear().toString();
+            return requestYear === targetYear;
+        });
+    } catch (error) {
+        console.error('Error in getRequestsBySemester:', error);
+        throw new Error('Error filtering requests by semester');
+    }
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -238,5 +263,6 @@ module.exports = {
     setPassword,
     createRequest,
     getUserRequests,
-    getUserRequests
+    getUserRequests,
+    getRequestsBySemester
 };
