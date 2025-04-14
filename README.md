@@ -58,7 +58,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - created view_details.handlebars and view_details.html
 - Editing the codes and comments
 - Modified the README file
-- formatting
+- formatting and styling
 
 
 ### Raghad258
@@ -71,7 +71,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - editing the codes
 - worked with verification
 - Modified the README file
-- formatting
+- formatting and styling
 
 
 ### Hananam696
@@ -92,7 +92,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - redirect back to login page if sunccessfully user logged in
 - modified login such as if user entered incorrect credentials it will show  error messgae in red
   and link to go back to login page to try again
-- formatting
+- formatting and styling
 - after activation user gets a link to go to login page directly
 - created student dashboard, creating new request page
 - email verification sent after creating a request
@@ -104,6 +104,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - update view details such that when user is in my request page it go back to that page and if in cancelled page go back to that page
 - Did the filter by semester function
 - If after filter by semester and it has no information for a particular semester for this case validation has been done
+- Logout function and routing created
 
 ## Extra Requirements Done
 
