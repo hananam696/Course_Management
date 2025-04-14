@@ -61,6 +61,67 @@ app.get('/activate', (req, res) => res.render('activate', { layout: false }));
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'admin.html'));
 });
+// Update your /admin route in web.js to this:
+
+app.get('/admin', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        
+        // Verify session first
+        if (!sessionKey) {
+            return res.redirect('/login');
+        }
+        
+        // Get session data
+        const session = await business.getSessionData(sessionKey);
+        if (!session || !session.user) {
+            return res.redirect('/login');
+        }
+
+        // Verify admin status
+        const isAdmin = session.user.isAdmin || 
+                       session.user.accountType === 'Admin' || 
+                       session.user.username === 'admin' || 
+                       session.user.email === 'admin@udst.edu.qa';
+        
+        if (!isAdmin) {
+            return res.status(403).send('Access denied. Admins only.');
+        }
+
+        // Get dashboard statistics
+        const dashboardData = {
+            pendingRequests: await business.getPendingRequestCount(),
+            completedRequests: await business.getCompletedRequestCount(),
+            activeUsers: await business.getActiveUserCount(),
+            avgResponseTime: await business.getAvgResponseTime(),
+            recentRequests: await business.getRecentRequests(10), // Get last 10 requests
+            cards: [
+                { value: await business.getTotalUsers(), change: '12.4', arrow: 'bottom', label: 'Users', color: 'primary' },
+                { value: '$6.200', change: '40.9', arrow: 'top', label: 'Income', color: 'success' },
+                { value: '2.49%', change: '84.7', arrow: 'top', label: 'Conversion Rate', color: 'warning' },
+                { value: await business.getTotalSessions(), change: '23.6', arrow: 'bottom', label: 'Sessions', color: 'danger' }
+            ],
+            stats: [
+                { label: 'Pending', value: await business.getPendingRequestCount(), percentage: '60', color: 'primary' },
+                { label: 'In Progress', value: await business.getInProgressRequestCount(), percentage: '20', color: 'info' },
+                { label: 'Completed', value: await business.getCompletedRequestCount(), percentage: '15', color: 'success' },
+                { label: 'Rejected', value: await business.getRejectedRequestCount(), percentage: '5', color: 'danger' }
+            ]
+        };
+
+        // Render the admin dashboard with all the data
+        res.render('admin.dashboard', {
+            layout: 'admin',
+            title: 'Admin Dashboard',
+            ...dashboardData,
+            user: session.user
+        });
+
+    } catch (err) {
+        console.error('Admin dashboard error:', err);
+        res.redirect('/login');
+    }
+});
 
 /**
  * Handles user registration with new fields
