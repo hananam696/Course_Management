@@ -1,4 +1,5 @@
 const { MongoClient } = require("mongodb");
+//const mongodb = require('mongodb');
 const { ObjectId } = require('mongodb');
 
 
@@ -192,26 +193,17 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
-/*
-async function getRequestById(requestId) {
-    await connectDatabase();
-    return db.collection('requests').findOne({
-        _id: ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId
-    });
-}
-*/
-
 async function getRequestById(requestId) {
     await connectDatabase();
     try {
-        // This now handles both string and ObjectId
-        const id = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
-        return await db.collection('requests').findOne({ _id: id });
+        const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+        return await db.collection('requests').findOne({ _id: oid });
     } catch (error) {
         console.error('Error in getRequestById:', error);
         throw new Error('Invalid request ID');
     }
 }
+
 
 async function updateRequest(requestId, updateData) {
     await connectDatabase();
@@ -228,9 +220,69 @@ async function updateRequest(requestId, updateData) {
     }
 }
 
+async function cancelRequest(requestId, userEmail) {
+    await connectDatabase();
 
+    // Convert to ObjectId if valid
+    const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+
+    // First verify the request exists and belongs to the user
+    const request = await db.collection('requests').findOne({
+        _id: oid,
+        studentEmail: userEmail
+    });
+
+    if (!request) {
+        throw new Error('Request not found or not authorized');
+    }
+
+    if (request.status === 'Cancelled') {
+        throw new Error('Request is already cancelled');
+    }
+
+    const updateData = {
+        status: 'Cancelled',
+        cancelledAt: new Date(),
+        updatedAt: new Date()
+    };
+
+    await db.collection('requests').updateOne(
+        { _id: oid },
+        { $set: updateData }
+    );
+
+    return { ...request, ...updateData };
+}
+
+async function getCancelledRequests(query) {
+    await connectDatabase();
+    return db.collection('requests')
+             .find(query)
+             .sort({ cancelledAt: -1 })
+             .toArray();
+}
+/**
+ * Updates request status with additional validation
+ * @param {string} requestId - The request ID
+ * @param {string} newStatus - The new status
+ * @returns {Promise<Object>} The updated request
+ * @throws {Error} If invalid status transition
+ */
 async function updateRequestStatus(requestId, newStatus) {
     await connectDatabase();
+
+    const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+    const currentRequest = await db.collection('requests').findOne({ _id: oid });
+
+    if (!currentRequest) {
+        throw new Error('Request not found');
+    }
+
+    // Validate status transition
+    if (currentRequest.status === 'Completed' && newStatus !== 'Completed') {
+        throw new Error('Completed requests cannot be modified');
+    }
+
     const updateData = {
         status: newStatus,
         updatedAt: new Date()
@@ -238,22 +290,16 @@ async function updateRequestStatus(requestId, newStatus) {
 
     if (newStatus === 'Cancelled') {
         updateData.cancelledAt = new Date();
+    } else if (newStatus === 'Completed') {
+        updateData.completedAt = new Date();
     }
 
     await db.collection('requests').updateOne(
-        { _id: ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId },
+        { _id: oid },
         { $set: updateData }
     );
 
-    return getRequestById(requestId); // Return the updated request
-}
-
-async function getCancelledRequests(email) {
-    await connectDatabase();
-    return db.collection('requests').find({
-        studentEmail: email,
-        status: 'Cancelled'
-    }).sort({ cancelledAt: -1 }).toArray();
+    return this.getRequestById(oid);
 }
 
 
@@ -276,5 +322,6 @@ module.exports = {
     getRequestById,
     updateRequestStatus,
     getCancelledRequests,
-    updateRequest
+    updateRequest,
+    cancelRequest
 };

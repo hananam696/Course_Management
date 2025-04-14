@@ -25,10 +25,10 @@ app.engine('handlebars', handlebars.engine({
         },
         formatDate: function(timestamp) {
             const date = new Date(timestamp);
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
@@ -84,12 +84,12 @@ app.get('/admin', (req, res) => {
 app.get('/admin', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
-        
+
         // Verify session first
         if (!sessionKey) {
             return res.redirect('/login');
         }
-        
+
         // Get session data
         const session = await business.getSessionData(sessionKey);
         if (!session || !session.user) {
@@ -97,11 +97,11 @@ app.get('/admin', async (req, res) => {
         }
 
         // Verify admin status
-        const isAdmin = session.user.isAdmin || 
-                       session.user.accountType === 'Admin' || 
-                       session.user.username === 'admin' || 
+        const isAdmin = session.user.isAdmin ||
+                       session.user.accountType === 'Admin' ||
+                       session.user.username === 'admin' ||
                        session.user.email === 'admin@udst.edu.qa';
-        
+
         if (!isAdmin) {
             return res.status(403).send('Access denied. Admins only.');
         }
@@ -354,7 +354,7 @@ app.post('/request', async (req, res) => {
 
         const pendingCount = await business.getPendingRequestCount();
         const createdAt = Date.now();
-        
+
         // Calculate estimated time (24 hours after creation)
         const estimatedTime = new Date(createdAt);
         estimatedTime.setHours(estimatedTime.getHours() + 24);
@@ -368,7 +368,7 @@ app.post('/request', async (req, res) => {
             semester,
             createdAt: createdAt,
             estimatedTime: estimatedTime.getTime(),
-            
+
         };
 
         await business.createRequest(requestData);
@@ -398,6 +398,7 @@ app.post('/request', async (req, res) => {
     }
 });
 
+
 app.get('/student/requests', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -410,20 +411,19 @@ app.get('/student/requests', async (req, res) => {
         const semester = req.query.semester;
         let userRequests = await business.getUserRequests(session.user.email);
 
-        // Filter requests by exact semester match
-        if (semester && semester !== 'all-2025') {
-            userRequests = userRequests.filter(request => {
-                return request.semester === semester;
-            });
-        }
+        // Filter out cancelled requests and filter by semester if specified
+        userRequests = userRequests.filter(request => {
+            const semesterMatch = !semester || semester === 'all-2025' || request.semester === semester;
+            return request.status !== 'Cancelled' && semesterMatch;
+        });
 
         res.render('view_req', {
             layout: false,
             userRequests,
-            selectedSemester: semester,  // Pass the selected semester to the template
+            selectedSemester: semester,
             message: semester && semester !== 'all-2025'
                 ? `Showing ${semester} requests`
-                : 'Showing all requests'
+                : 'Showing all active requests'
         });
     } catch (error) {
         console.error('Error fetching user requests:', error);
@@ -431,9 +431,28 @@ app.get('/student/requests', async (req, res) => {
     }
 });
 
+// Handle cancellation form submission
+app.post('/student/requests/cancel', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
 
+        if (!session || !session.user) {
+            return res.status(401).send('Unauthorized');
+        }
 
-// Example route for cancelled requests
+        const { requestId } = req.body;
+
+        // Business logic handles all validation
+        await business.cancelRequest(requestId, session.user.email);
+
+        res.redirect('/student/requests?success=Request+cancelled+successfully');
+    } catch (error) {
+        console.error('Cancellation error:', error);
+        res.redirect(`/student/requests?error=${encodeURIComponent(error.message)}`);
+    }
+});
+
 app.get('/student/cancel', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -446,72 +465,27 @@ app.get('/student/cancel', async (req, res) => {
         const semester = req.query.semester;
         let cancelledRequests = await business.getCancelledRequests(session.user.email);
 
-        // Filter requests by exact semester match
+        // Apply semester filter if specified and not "all-2025"
         if (semester && semester !== 'all-2025') {
-            cancelledRequests = cancelledRequests.filter(request => {
-                return request.semester === semester;
-            });
+            cancelledRequests = cancelledRequests.filter(request =>
+                request.semester === semester
+            );
         }
 
         res.render('cancel_req', {
             layout: false,
             cancelledRequests,
-            selectedSemester: semester,  // Pass the selected semester to the template
+            selectedSemester: semester || 'all-2025',
             message: semester && semester !== 'all-2025'
                 ? `Showing cancelled requests for ${semester}`
                 : 'Showing all cancelled requests'
         });
     } catch (error) {
-        console.error('Error fetching cancelled requests:', error);
-        res.redirect('/?error=Failed to load cancelled requests');
+        console.error('Error loading cancelled requests:', error);
+        res.redirect('/student/requests?error=' + encodeURIComponent(error.message));
     }
 });
 
-/*
-// Cancel a specific request
-app.post('/student/requests/cancel', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-
-        if (!session || !session.user) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        const { requestId } = req.body;
-        const cancelledRequest = await business.cancelRequest(requestId, session.user.email);
-
-        // Redirect to the "Cancelled Requests" page after cancellation
-        res.redirect('/student/cancel');
-    } catch (error) {
-        console.error('Error cancelling request:', error);
-        res.status(400).json({ error: error.message });
-    }
-});
-*/
-
-// Cancel a specific request
-app.post('/student/requests/cancel', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-
-        if (!session || !session.user) {
-            return res.status(401).json({ success: false, error: 'Unauthorized' });
-        }
-
-        const { requestId } = req.body;
-        if (!requestId) {
-            return res.status(400).json({ success: false, error: 'Request ID is required' });
-        }
-
-        await business.cancelRequest(requestId, session.user.email);
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Error cancelling request:', error);
-        res.status(400).json({ success: false, error: error.message });
-    }
-});
 
 app.get('/request/details/:id', async (req, res) => {
     try {
@@ -523,14 +497,14 @@ app.get('/request/details/:id', async (req, res) => {
         }
 
         const requestId = req.params.id;
-        
+
         // Basic validation of requestId length (MongoDB IDs are 24 chars)
         if (!requestId || requestId.length !== 24) {
             return res.redirect('/student/requests?error=Invalid request ID');
         }
 
         const request = await business.getRequestDetails(requestId, session.user.email);
-        
+
         res.render('view_details', {
             layout: false,
             request: request,
@@ -558,11 +532,6 @@ app.get('/request/details/:id', async (req, res) => {
         res.redirect('/student/requests?error=' + encodeURIComponent(error.message));
     }
 });
-
-
-
-
-
 
 
 // Start the server on port 8000
