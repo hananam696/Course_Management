@@ -34,7 +34,7 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Request Details</h4>
-        <a href="/student/requests" class="btn btn-light">← Back to Requests</a>
+
       </div>
       <div class="card-body">
         <div class="row mb-3">
@@ -48,7 +48,7 @@
                 <strong>Category:</strong> {{request.category}}
               </li>
               <li class="list-group-item">
-                <strong>Status:</strong> 
+                <strong>Status:</strong>
                 <span class="badge bg-{{#if (eq request.status 'Pending')}}warning{{else if (eq request.status 'Cancelled')}}danger{{else}}success{{/if}}">
                   {{request.status}}
                 </span>
@@ -77,7 +77,7 @@
             </ul>
           </div>
         </div>
-        
+
         <div class="mb-4">
           <h5>Description</h5>
           <div class="card">
@@ -86,7 +86,7 @@
             </div>
           </div>
         </div>
-        
+
         {{#if request.resolution}}
         <div class="mb-4">
           <h5>Resolution</h5>
@@ -97,16 +97,21 @@
           </div>
         </div>
         {{/if}}
-        
         <div class="d-flex justify-content-between mt-4">
-          {{#if (eq request.status 'Pending')}}
-          <form action="/student/requests/cancel" method="POST" class="d-inline">
-            <input type="hidden" name="requestId" value="{{request._id}}">
-            <button type="submit" class="btn btn-danger">Cancel Request</button>
-          </form>
-          {{/if}}
-          <a href="/student/requests" class="btn btn-secondary">Back to All Requests</a>
-        </div>
+  {{#if (eq request.status 'Pending')}}
+    <form action="/student/requests/cancel" method="POST" class="d-inline">
+      <input type="hidden" name="requestId" value="{{request._id}}">
+      <button type="submit" class="btn btn-danger">Cancel Request</button>
+    </form>
+  {{/if}}
+
+  {{#if (eq request.status 'Cancelled')}}
+    <a href="/student/cancel" class="btn btn-secondary">Back to Cancelled Requests</a>
+  {{else}}
+    <a href="/student/requests" class="btn btn-secondary">Back to My Requests</a>
+  {{/if}}
+</div>
+
       </div>
     </div>
   </div>
