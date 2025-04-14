@@ -18,7 +18,7 @@ gangster  -   gangsta@udst.edu.qa  - cant1234
 spiderman -   spider@gmail.com     - spy12345
 batman    -   bat@udst.edu.qa      - bats1234
 babyshark -   shark@gmail.com      - baby0909
-hihi      -   hihi@udst.edu.qa     - hihi5678
+hihi      -   hihi@udst.edu.qa     - hihi0808
 sama      -   sama@yahoo.com       - samaiscute12
 project   -   pro@udst.edu.qa      - prorated34
 web2      -   web@gmail.com        - webs3201
