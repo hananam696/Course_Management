@@ -190,29 +190,39 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
-async function getRequestById(id) {
-    return await db.collection('requests').findOne({ _id: new ObjectId(id) });
+async function getRequestById(requestId) {
+    await connectDatabase();
+    return db.collection('requests').findOne({
+        _id: ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId
+    });
 }
 
-async function updateRequestStatus(id, newStatus) {
-    await db.collection('requests').updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { status: newStatus } }
-    );
-    return await getRequestById(id); // Return updated request
-}
+async function updateRequestStatus(requestId, newStatus) {
+    await connectDatabase();
+    const updateData = {
+        status: newStatus,
+        updatedAt: new Date()
+    };
 
-// persistence.js or your data access layer file
-const getCancelledRequests = async () => {
-    try {
-        // Use MongoDB's native driver to fetch cancelled requests
-        const requestCollection = db.collection('requests');
-        return await requestCollection.find({ status: 'Canceled' }).toArray();
-    } catch (error) {
-        throw new Error('Failed to fetch cancelled requests: ' + error.message);
+    if (newStatus === 'Cancelled') {
+        updateData.cancelledAt = new Date();
     }
-};
 
+    await db.collection('requests').updateOne(
+        { _id: ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId },
+        { $set: updateData }
+    );
+
+    return getRequestById(requestId); // Return the updated request
+}
+
+async function getCancelledRequests(email) {
+    await connectDatabase();
+    return db.collection('requests').find({
+        studentEmail: email,
+        status: 'Cancelled'
+    }).sort({ cancelledAt: -1 }).toArray();
+}
 
 
 module.exports = {

@@ -444,17 +444,28 @@ app.get('/student/cancel', async (req, res) => {
 });
 
 
+// Cancel a specific request
+app.post('/student/requests/cancel', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
 
-// app.post('/student/cancel/:requestId', async (req, res) => {
-//     const requestId = req.params.requestId;
-//     try {
-//         const result = await cancelRequest(requestId);
-//         res.status(200).json({ message: 'Request canceled successfully', data: result });
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// });
+        if (!session || !session.user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
+        const { requestId } = req.body;
+        const cancelledRequest = await business.cancelRequest(requestId, session.user.email);
+
+        res.json({
+            success: true,
+            request: cancelledRequest
+        });
+    } catch (error) {
+        console.error('Error cancelling request:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
