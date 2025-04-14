@@ -399,6 +399,8 @@ app.post('/request', async (req, res) => {
 //         res.redirect('/?error=Failed to load requests');
 //     }
 // });
+
+
 app.get('/student/requests', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -432,6 +434,7 @@ app.get('/student/requests', async (req, res) => {
     }
 });
 
+  
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
