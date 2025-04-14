@@ -308,6 +308,37 @@ async function formatQatarDate(date) {
     }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
 }
 
+async function getCancelledRequests(){
+    await persistence.getCancelledRequests()
+}
+
+    /**
+ * Cancels a pending request by updating its status to "Canceled".
+ * @param {string} requestId - The ID of the request to cancel.
+ * @returns {Promise<Object>} - The updated request.
+ * @throws {Error} - If the request is not found or already processed.
+ */
+async function cancelRequest(requestId) {
+    try {
+        const request = await persistence.getRequestById(requestId);
+        if (!request) {
+            throw new Error('Request not found');
+        }
+
+        if (request.status !== 'Pending') {
+            throw new Error('Only pending requests can be cancelled');
+        }
+
+        const updatedRequest = await persistence.updateRequestStatus(requestId, 'Cancelled');
+        return updatedRequest;
+    } catch (error) {
+        console.error('Error in cancelRequest:', error.message);
+        throw new Error('Failed to cancel request');
+    }
+}
+
+
+
 module.exports = {
     registerUser,
     activateUser,
@@ -323,5 +354,7 @@ module.exports = {
     getRequestsBySemester,
     getPendingRequestCount,
     calculateEstimatedTime,
-    formatQatarDate
+    formatQatarDate,
+    getCancelledRequests,
+    cancelRequest
 };

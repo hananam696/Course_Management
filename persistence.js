@@ -190,6 +190,31 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
+async function getRequestById(id) {
+    return await db.collection('requests').findOne({ _id: new ObjectId(id) });
+}
+
+async function updateRequestStatus(id, newStatus) {
+    await db.collection('requests').updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: newStatus } }
+    );
+    return await getRequestById(id); // Return updated request
+}
+
+// persistence.js or your data access layer file
+const getCancelledRequests = async () => {
+    try {
+        // Use MongoDB's native driver to fetch cancelled requests
+        const requestCollection = db.collection('requests');
+        return await requestCollection.find({ status: 'Canceled' }).toArray();
+    } catch (error) {
+        throw new Error('Failed to fetch cancelled requests: ' + error.message);
+    }
+};
+
+
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -205,5 +230,8 @@ module.exports = {
     checkReset,
     insertRequest,
     getRequestsByEmail,
-    getPendingRequestCount
+    getPendingRequestCount,
+    getRequestById,
+    updateRequestStatus,
+    getCancelledRequests
 };
