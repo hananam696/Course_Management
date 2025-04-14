@@ -331,45 +331,6 @@ async function cancelRequest(requestId, userEmail) {
     }
 }
 
-/**
- * Gets all cancelled requests for a user
- * @param {string} email - User's email
- * @returns {Promise<Array>} Array of cancelled requests
- */
-// async function getCancelledRequests(email) {
-//     try {
-//         const requests = await persistence.getCancelledRequests(email);
-
-//         // Convert to plain objects and ensure proper date formatting
-//         return requests.map(request => ({
-//             ...request,
-//             _id: request._id.toString(),
-//             cancelledAt: request.cancelledAt || request.updatedAt,
-//             createdAt: request.createdAt
-//         }));
-//     } catch (error) {
-//         console.error('Error in business.getCancelledRequests:', error);
-//         throw new Error('Failed to retrieve cancelled requests');
-//     }
-// }
-// In business.js
-//async function getCancelledRequests(email, semester = null) {
-//     let query = {
-//         studentEmail: email,
-//         status: 'Cancelled'
-//     };
-
-//     if (semester && semester !== 'all-2025') {
-//         query.semester = semester;
-//     }
-
-//     const requests = await persistence.getCancelledRequests(query);
-//     return requests.map(request => ({
-//         ...request,
-//         _id: request._id.toString(),
-//         cancelledAt: request.cancelledAt || request.updatedAt
-//     }));
-// }
 async function getCancelledRequests(email, semester = null) {
     // Create the base query
     let query = {

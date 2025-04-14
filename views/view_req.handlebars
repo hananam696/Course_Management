@@ -43,6 +43,8 @@
             </button>
           </form>
         </div>
+
+        {{#if userRequests.length}}
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -78,6 +80,21 @@
             </tbody>
           </table>
         </div>
+        {{else}}
+        <div class="no-requests text-center p-4">
+          <p class="fs-5">No requests found
+            {{#if selectedSemester}}
+              {{#unless (eq selectedSemester 'all-2025')}}
+                for {{selectedSemester}}
+              {{/unless}}
+            {{/if}}
+          </p>
+          <a href="/request" class="btn btn-primary mt-2">
+            Create New Request
+          </a>
+        </div>
+        {{/if}}
+
       </div>
     </div>
   </div>

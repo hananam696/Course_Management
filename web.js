@@ -420,7 +420,7 @@ app.get('/student/requests', async (req, res) => {
         res.render('view_req', {
             layout: false,
             userRequests,
-            selectedSemester: semester,
+            selectedSemester: semester === 'all-2025' || !semester,
             message: semester && semester !== 'all-2025'
                 ? `Showing ${semester} requests`
                 : 'Showing all active requests'
