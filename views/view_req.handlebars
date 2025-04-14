@@ -16,7 +16,7 @@
         <a class="nav-link active" href="/student/requests">My Requests</a>
         <a class="nav-link" href="/student/cancel">Cancelled Requests</a>
         <a class="nav-link" href="/student/request/new">New Request</a>
-        <a class="nav-link" href="/auth/logout">Logout</a>
+        <a class="nav-link" href="/logout">Logout</a>
       </div>
     </div>
   </nav>
@@ -55,6 +55,7 @@
                 <th>Created At</th>
                 <th>Estimated Process Time</th>
                 <th>Cancel Request</th>
+                <th>Details</th>
                 <th></th>
               </tr>
             </thead>
@@ -73,7 +74,7 @@
                   </form>
                 </td>
                 <td>
-                  <a href="/request/details/{{this._id}}" class="btn btn-info btn-sm">View Details</a>
+                  <a href="/request/details/{{this._id}}" class="btn btn-primary btn-sm">View Details</a>
                 </td>
               </tr>
               {{/each}}
