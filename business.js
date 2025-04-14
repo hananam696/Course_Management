@@ -308,10 +308,33 @@ async function formatQatarDate(date) {
     }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
 }
 
+/*
 async function getCancelledRequests(email) {
     return persistence.getCancelledRequests(email);
 }
+    */
 
+/**
+ * Gets all cancelled requests for a user.
+ * @param {string} email - The user's email.
+ * @returns {Promise<Array>} - List of cancelled requests.
+ */
+async function getCancelledRequests(email) {
+    try {
+        const requests = await persistence.getCancelledRequests(email);
+        return requests.map(request => ({
+            ...request,
+            _id: request._id.toString(),
+            cancelledAt: request.cancelledAt || request.updatedAt
+        }));
+    } catch (error) {
+        console.error('Error in getCancelledRequests:', error);
+        throw new Error('Error retrieving cancelled requests');
+    }
+}
+
+
+/*
 async function cancelRequest(requestId, userEmail) {
     try {
         // Convert string ID to ObjectId if needed
@@ -339,8 +362,70 @@ async function cancelRequest(requestId, userEmail) {
         throw error;
     }
 }
+*/
 
 
+async function cancelRequest(requestId, userEmail) {
+    try {
+        const request = await persistence.getRequestById(requestId);
+        
+        if (!request || request.studentEmail !== userEmail) {
+            throw new Error('Request not found or not authorized');
+        }
+
+        if (request.status !== 'Pending') {
+            throw new Error('Only pending requests can be cancelled');
+        }
+
+        const updateData = {
+            status: 'Cancelled',
+            cancelledAt: new Date(),
+            updatedAt: new Date()
+        };
+        
+        const updatedRequest = await persistence.updateRequest(requestId, updateData);
+        return updatedRequest;
+    } catch (error) {
+        console.error('Error in cancelRequest:', error.message);
+        throw error;
+    }
+}
+
+
+
+/**
+ * Gets detailed information about a specific request.
+ * @param {string} requestId - The ID of the request.
+ * @param {string} userEmail - The email of the user making the request.
+ * @returns {Promise<Object>} - The request details.
+ */
+async function getRequestDetails(requestId, userEmail) {
+    try {
+        const request = await persistence.getRequestById(requestId);
+        
+        if (!request) {
+            throw new Error('Request not found');
+        }
+        
+        if (request.studentEmail !== userEmail) {
+            throw new Error('Unauthorized access to request');
+        }
+        
+        return {
+            ...request,
+            _id: request._id.toString(), // Convert to string if it's ObjectId
+            semester: request.semester || 'Not specified',
+            createdAt: request.createdAt,
+            estimatedTime: request.estimatedTime,
+            cancelledAt: request.cancelledAt,
+            resolvedAt: request.resolvedAt,
+            resolution: request.resolution || 'Not resolved yet'
+        };
+    } catch (error) {
+        console.error('Error in getRequestDetails:', error);
+        throw error;
+    }
+}
 
 module.exports = {
     registerUser,
@@ -359,5 +444,6 @@ module.exports = {
     calculateEstimatedTime,
     formatQatarDate,
     cancelRequest,
-    getCancelledRequests
+    getCancelledRequests,
+    getRequestDetails
 };

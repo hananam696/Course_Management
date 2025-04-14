@@ -14,7 +14,7 @@
       <div class="navbar-nav">
         <a class="nav-link" href="/request">Dashboard</a>
         <a class="nav-link active" href="/student/requests">My Requests</a>
-        <a class="nav-link active" href="/student/cancel">Cancelled Requests</a>
+        <a class="nav-link" href="/student/cancel">Cancelled Requests</a>
         <a class="nav-link" href="/student/request/new">New Request</a>
         <a class="nav-link" href="/auth/logout">Logout</a>
       </div>
@@ -70,7 +70,9 @@
                     <button type="submit" class="btn btn-primary" style="background-color: red;">Cancel Request</button>
                   </form>
                 </td>
-                <td><button type="view" class="btn btn-primary">View Details</button></td>
+                <td>
+                  <a href="/request/details/{{this._id}}" class="btn btn-info btn-sm">View Details</a>
+                </td>
               </tr>
               {{/each}}
             </tbody>

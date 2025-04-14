@@ -192,12 +192,42 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
+/*
 async function getRequestById(requestId) {
     await connectDatabase();
     return db.collection('requests').findOne({
         _id: ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId
     });
 }
+*/
+
+async function getRequestById(requestId) {
+    await connectDatabase();
+    try {
+        // This now handles both string and ObjectId
+        const id = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+        return await db.collection('requests').findOne({ _id: id });
+    } catch (error) {
+        console.error('Error in getRequestById:', error);
+        throw new Error('Invalid request ID');
+    }
+}
+
+async function updateRequest(requestId, updateData) {
+    await connectDatabase();
+    try {
+        const id = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+        await db.collection('requests').updateOne(
+            { _id: id },
+            { $set: updateData }
+        );
+        return await this.getRequestById(id);
+    } catch (error) {
+        console.error('Error in updateRequest:', error);
+        throw new Error('Failed to update request');
+    }
+}
+
 
 async function updateRequestStatus(requestId, newStatus) {
     await connectDatabase();
@@ -245,5 +275,6 @@ module.exports = {
     getPendingRequestCount,
     getRequestById,
     updateRequestStatus,
-    getCancelledRequests
+    getCancelledRequests,
+    updateRequest
 };

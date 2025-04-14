@@ -513,5 +513,57 @@ app.post('/student/requests/cancel', async (req, res) => {
     }
 });
 
+app.get('/request/details/:id', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session || !session.user) {
+            return res.redirect('/login');
+        }
+
+        const requestId = req.params.id;
+        
+        // Basic validation of requestId length (MongoDB IDs are 24 chars)
+        if (!requestId || requestId.length !== 24) {
+            return res.redirect('/student/requests?error=Invalid request ID');
+        }
+
+        const request = await business.getRequestDetails(requestId, session.user.email);
+        
+        res.render('view_details', {
+            layout: false,
+            request: request,
+            helpers: {
+                formatDate: function(date) {
+                    if (!date) return 'N/A';
+                    const d = new Date(date);
+                    return d.toLocaleString('en-US', {
+                        timeZone: 'Asia/Qatar',
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                },
+                eq: function(v1, v2) {
+                    return v1 === v2;
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching request details:', error);
+        res.redirect('/student/requests?error=' + encodeURIComponent(error.message));
+    }
+});
+
+
+
+
+
+
+
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
