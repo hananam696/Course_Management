@@ -54,6 +54,7 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - Created activate_password, new_password, password-reset handlebars 
 - Implemented forgot password, if a user forgets password they can reset password using the reset key   provided in console.log
 - Added new request category in request.handlebars
+- fixed the date and time for requests
 - Editing the codes and comments
 - Modified the README file
 - formatting
