@@ -51,11 +51,11 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - implemented redirection to the homepage after login
 - Created TTL for session key and set it to expire within 5 minutes
 - contributed to the activation code
-- Created activate_password, new_password, password-reset handlebars 
+- Created activate_password, new_password, password-reset handlebars
 - Implemented forgot password, if a user forgets password they can reset password using the reset key   provided in console.log
 - Added new request category in request.handlebars
 - fixed the date and time for requests
-- created view_details.handlebars and view_details.html 
+- created view_details.handlebars and view_details.html
 - Editing the codes and comments
 - Modified the README file
 - formatting
@@ -94,6 +94,16 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
   and link to go back to login page to try again
 - formatting
 - after activation user gets a link to go to login page directly
+- created student dashboard, creating new request page
+- email verification sent after creating a request
+- created fucntion that makes the request page must match the logged in users email with email they used in the request form
+- create view all request page,  time estimation done, status, and formatting and validation
+- created cancel request page, updating the status to cancelled if clciked cancelled
+- cancelled request should be removed from view my request page done
+- Request page necessary mongodb updation functions created
+- update view details such that when user is in my request page it go back to that page and if in cancelled page go back to that page
+- Did the filter by semester function
+- If after filter by semester and it has no information for a particular semester for this case validation has been done
 
 ## Extra Requirements Done
 
