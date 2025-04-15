@@ -193,6 +193,7 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
+/*
 async function getRequestById(requestId) {
     await connectDatabase();
     try {
@@ -203,7 +204,7 @@ async function getRequestById(requestId) {
         throw new Error('Invalid request ID');
     }
 }
-
+*/
 
 async function updateRequest(requestId, updateData) {
     await connectDatabase();
@@ -371,8 +372,6 @@ async function getRequestsByCategory(category, status = 'Pending') {
         .toArray();
 }
 
-
-
 module.exports = {
     findUserByUsername,
     createUser,
@@ -389,14 +388,12 @@ module.exports = {
     insertRequest,
     getRequestsByEmail,
     getPendingRequestCount,
-    getRequestById,
     updateRequestStatus,
     getCancelledRequests,
     updateRequest,
     cancelRequest,
     getPendingRequestCount,
     getPendingRequestCountsByCategory,
-    getRandomPendingRequest,
     resolveRequest,
     getRequestsByCategory
 };
