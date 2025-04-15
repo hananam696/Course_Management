@@ -411,6 +411,44 @@ async function getRequestDetails(requestId, userEmail) {
         throw error;
     }
 }
+async function getDashboardQueues() {
+    try {
+        const categoryCounts = await persistence.getPendingRequestCountsByCategory();
+
+        // Create a mapping of possible database names to your display names
+        const categoryMapping = {
+            'Course Registration': 'Course Registration',
+            'Grade Appeal': 'Grade Appeal',
+            'Schedule Change': 'Schedule Change',
+            'Graduation': 'Graduation',
+            'Leave of Absence': 'Leave of Absence',
+            'Financial Aid': 'Financial Aid',
+            'Academic Advising': 'Academic Advising',
+            'Officer': 'Officer'
+        };
+
+        // Initialize all categories with count 0 using your display names
+        const allCategories = Object.values(categoryMapping).map(name => ({
+            name,
+            count: 0
+        }));
+
+        // Update counts from database results
+        for (const dbCategory of categoryCounts) {
+            const displayName = categoryMapping[dbCategory._id] || dbCategory._id;
+            const category = allCategories.find(c => c.name === displayName);
+            if (category) {
+                category.count = dbCategory.count;
+            }
+        }
+
+        return allCategories;
+    } catch (error) {
+        console.error('Error in getDashboardQueues:', error);
+        throw new Error('Failed to load dashboard data');
+    }
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -429,5 +467,6 @@ module.exports = {
     formatQatarDate,
     cancelRequest,
     getCancelledRequests,
-    getRequestDetails
+    getRequestDetails,
+    getDashboardQueues
 };

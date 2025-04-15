@@ -302,6 +302,57 @@ async function updateRequestStatus(requestId, newStatus) {
     return this.getRequestById(oid);
 }
 
+async function getPendingRequestCountsByCategory() {
+    await connectDatabase();
+    try {
+        const result = await db.collection("requests").aggregate([
+            { $match: { status: "Pending" } },
+            { $group: {
+                _id: "$category",
+                count: { $sum: 1 }
+            }}
+        ]).toArray();
+        console.log("Aggregation result:", result);
+        return result;
+    } catch (error) {
+        console.error("Error in getPendingRequestCountsByCategory:", error);
+        throw error;
+    }
+}
+/**
+ * Gets a random pending request from any category
+ * @returns {Promise<Object|null>} Random request or null if none
+ */
+async function getRandomPendingRequest() {
+    await connectDatabase();
+    return db.collection("requests").aggregate([
+        { $match: { status: "Pending" } },
+        { $sample: { size: 1 } }
+    ]).next();
+}
+
+/**
+ * Updates request status and adds resolution notes
+ * @param {string} requestId - The request ID
+ * @param {string} newStatus - 'Approved' or 'Rejected'
+ * @param {string} resolutionNotes - Department head's comments
+ * @returns {Promise<Object>} Updated request
+ */
+async function resolveRequest(requestId, newStatus, resolutionNotes) {
+    await connectDatabase();
+    const updateData = {
+        status: newStatus,
+        resolvedAt: new Date(),
+        resolutionNotes: resolutionNotes
+    };
+
+    await db.collection("requests").updateOne(
+        { _id: new ObjectId(requestId) },
+        { $set: updateData }
+    );
+
+    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+}
 
 module.exports = {
     findUserByUsername,
@@ -323,5 +374,9 @@ module.exports = {
     updateRequestStatus,
     getCancelledRequests,
     updateRequest,
-    cancelRequest
+    cancelRequest,
+    getPendingRequestCount,
+    getPendingRequestCountsByCategory,
+    getRandomPendingRequest,
+    resolveRequest
 };

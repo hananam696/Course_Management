@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="/dashboard">Student Portal</a>
+      <div class="navbar-nav">
+        <a class="nav-link active" href="/dashboard"><i class="fas fa-home"></i> Dashboard</a>
+        <a class="nav-link" href="/request"><i class="fas fa-plus-circle"></i> New Request</a>
+        <a class="nav-link" href="/student/requests"><i class="fas fa-list"></i> My Requests</a>
+        <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="container mt-4">
+    <h3>Welcome, {{user.username}}!</h3>
+    <p>Here's your request summary:</p>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Pending Requests</h5>
+            <p class="card-text fs-2">{{pendingCount}}</p>
+            <a href="/student/requests?semester=all-2025" class="text-white">View All</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-success">
+          <div class="card-body">
+            <h5 class="card-title">Completed Requests</h5>
+            <p class="card-text fs-2">{{completedCount}}</p>
+            <a href="/student/requests?status=Completed" class="text-white">View All</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-info">
+          <div class="card-body">
+            <h5 class="card-title">Quick Actions</h5>
+            <a href="/request" class="btn btn-light btn-sm mb-2">New Request</a>
+            <a href="/student/cancel" class="btn btn-light btn-sm">Cancelled Requests</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Requests Table -->
+    <div class="card">
+      <div class="card-header">
+        <h5>Recent Requests</h5>
+      </div>
+      <div class="card-body">
+        {{#if recentRequests.length}}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each recentRequests}}
+                <tr>
+                  <td>{{this.category}}</td>
+                  <td>
+                    <span class="badge {{#eq this.status 'Pending'}}bg-warning{{else}}bg-success{{/eq}}">
+                      {{this.status}}
+                    </span>
+                  </td>
+                  <td>{{formatDate this.createdAt}}</td>
+                  <td>
+                    <a href="/request/details/{{this._id}}" class="btn btn-sm btn-info">View</a>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        {{else}}
+          <p>No recent requests found.</p>
+          <a href="/request" class="btn btn-primary">Create Your First Request</a>
+        {{/endif}}
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

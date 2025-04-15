@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title><%= title %> | Student Request Management System</title>
+  <link rel="stylesheet" href="vendors/simplebar/css/simplebar.css">
+  <link rel="stylesheet" href="css/vendors/simplebar.css">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/examples.css" rel="stylesheet">
+</head>
+<body>
+  <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
+    <div class="sidebar-brand d-none d-md-flex">
+      <svg class="sidebar-brand-full" width="118" height="46">
+        <use xlink:href="assets/brand/coreui.svg#full"></use>
+      </svg>
+      <svg class="sidebar-brand-narrow" width="46" height="46">
+        <use xlink:href="assets/brand/coreui.svg#signet"></use>
+      </svg>
+    </div>
+    <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
+      <li class="nav-item">
+        <a class="nav-link" href="/department-head/dashboard">
+          <svg class="nav-icon">
+            <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-speedometer"></use>
+          </svg> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/department-head/random-request">
+          <svg class="nav-icon">
+            <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-lightbulb"></use>
+          </svg> I don't know where to begin!
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/auth/logout">
+          <svg class="nav-icon">
+            <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-account-logout"></use>
+          </svg> Logout
+        </a>
+      </li>
+    </ul>
+    <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
+  </div>
+  <div class="wrapper d-flex flex-column min-vh-100 bg-light">
+    <header class="header header-sticky mb-4">
+      <div class="container-fluid">
+        <button class="header-toggler px-md-0 me-md-3" type="button" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
+          <svg class="icon icon-lg">
+            <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-menu"></use>
+          </svg>
+        </button>
+        <a class="header-brand d-md-none" href="#">
+          <svg width="118" height="46">
+            <use xlink:href="assets/brand/coreui.svg#full"></use>
+          </svg>
+        </a>
+        <ul class="header-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <svg class="icon icon-lg">
+                <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-user"></use>
+              </svg>
+              <%= user.name %>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </header>
+    <div class="body flex-grow-1 px-3">
+      <div class="container-lg">
+        <div class="row">
+          <div class="col-12">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Request Details</strong>
+                <div>
+                  <a href="/department-head/queue/<%= request.category %>" class="btn btn-sm btn-secondary me-2">Back to Queue</a>
+                  <a href="/department-head/dashboard" class="btn btn-sm btn-secondary">Back to Dashboard</a>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <h5>Request Information</h5>
+                    <table class="table table-borderless">
+                      <tr>
+                        <th style="width: 150px;">ID:</th>
+                        <td><%= request._id.toString() %></td>
+                      </tr>
+                      <tr>
+                        <th>Title:</th>
+                        <td><%= request.title %></td>
+                      </tr>
+                      <tr>
+                        <th>Category:</th>
+                        <td><%= request.category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %></td>
+                      </tr>
+                      <tr>
+                        <th>Status:</th>
+                        <td>
+                          <span class="badge bg-<%=
+                            request.status === 'pending' ? 'warning' :
+                            request.status === 'resolved' ? 'success' :
+                            request.status === 'rejected' ? 'danger' :
+                            'secondary'
+                          %>">
+                            <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>Submitted:</th>
+                        <td><%= new Date(request.submittedAt).toLocaleString() %></td>
+                      </tr>
+                      <tr>
+                        <th>Est. Completion:</th>
+                        <td><%= new Date(request.estimatedCompletionTime).toLocaleString() %></td>
+                      </tr>
+                      <tr>
+                        <th>Semester:</th>
+                        <td><%= request.semester %></td>
+                      </tr>
+                    </table>
+                  </div>
+                  <div class="col-md-6">
+                    <h5>Student Information</h5>
+                    <table class="table table-borderless">
+                      <tr>
+                        <th style="width: 150px;">Name:</th>
+                        <td><%= request.student.name %></td>
+                      </tr>
+                      <tr>
+                        <th>Email:</th>
+                        <td><%= request.student.email %></td>
+                      </tr>
+                      <tr>
+                        <th>Degree Program:</th>
+                        <td><%= request.student.degreeProgram %></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h5>Description</h5>
+                    <div class="p-3 bg-light rounded">
+                      <%= request.description %>
+                    </div>
+                  </div>
+                </div>
+
+                <% if (request.notes && request.notes.length > 0) { %>
+                  <div class="row mb-4">
+                    <div class="col-12">
+                      <h5>Notes</h5>
+                      <div class="list-group">
+                        <% request.notes.forEach(note => { %>
+                          <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                              <small class="text-muted">Added on <%= new Date(note.addedAt).toLocaleString() %></small>
+                            </div>
+                            <p class="mb-1"><%= note.content %></p>
+                          </div>
+                        <% }); %>
+                      </div>
+                    </div>
+                  </div>
+                <% } %>
+
+                <% if (request.status === 'pending') { %>
+                  <div class="row mb-4">
+                    <div class="col-12">
+                      <h5>Add Note</h5>
+                      <form action="/department-head/request/<%= request._id %>/note" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <div class="mb-3">
+                          <textarea class="form-control" name="note" rows="3" required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="btn btn-primary">Add Note</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-12">
+                      <h5>Process Request</h5>
+                      <form action="/department-head/request/<%= request._id %>/process" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <div class="mb-3">
+                          <label class="form-label">Action</label>
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="action" id="actionResolve" value="resolve" required>
+                            <label class="form-check-label" for="actionResolve">
+                              Resolve
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="action" id="actionReject" value="reject" required>
+                            <label class="form-check-label" for="actionReject">
+                              Reject
+                            </label>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="resolution" class="form-label">Resolution</label>
+                          <textarea class="form-control" id="resolution" name="resolution" rows="3" required></textarea>
+                          <div class="form-text">Provide details about how this request was resolved or why it was rejected.</div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="btn btn-primary">Process Request</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                <% } else if (request.resolution) { %>
+                  <div class="row">
+                    <div class="col-12">
+                      <h5>Resolution</h5>
+                      <div class="p-3 bg-light rounded">
+                        <%= request.resolution %>
+                      </div>
+                      <% if (request.processedAt) { %>
+                        <div class="mt-2 text-muted">
+                          Processed on <%= new Date(request.processedAt).toLocaleString() %>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div><a href="#">Student Request Management System</a> © 2023</div>
+      <div class="ms-auto">Powered by <a href="#">CoreUI</a></div>
+    </footer>
+  </div>
+  <script src="vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+  <script src="vendors/simplebar/js/simplebar.min.js"></script>
+</body>
+</html>
