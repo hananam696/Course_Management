@@ -203,7 +203,6 @@ async function updateRequest(requestId, updateData) {
         );
         return await this.getRequestById(id);
     } catch (error) {
-        console.error('Error in updateRequest:', error);
         throw new Error('Failed to update request');
     }
 }
@@ -323,31 +322,7 @@ async function getRandomPendingRequest() {
  * @returns {Promise<Object>} Updated request
  */
 
-/*
-async function resolveRequest(requestId, newStatus, resolutionNotes) {
-    await connectDatabase();
-    const updateData = {
-        status: newStatus,
-        resolvedAt: new Date(),
-        resolutionNotes: resolutionNotes
-    };
 
-    await db.collection("requests").updateOne(
-        { _id: new ObjectId(requestId) },
-        { $set: updateData }
-    );
-
-    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
-}
-*/
-
-
-/**
- * Gets all requests by category with status filtering
- * @param {string} category - The request category
- * @param {string} [status='Pending'] - The status to filter by
- * @returns {Promise<Array>} List of requests
- */
 async function getRequestsByCategory(category, status = 'Pending') {
     await connectDatabase();
     return db.collection("requests")
@@ -371,33 +346,6 @@ async function getRequestById(requestId) {
     }
 }
 
-// Add this method to update request status and resolution notes
-// Add/update these methods in persistence.js
-
-/**
- * Resolves a request with status and notes
- * @param {string} requestId - The request ID
- * @param {string} status - New status (Approved/Cancelled)
- * @param {string} resolutionNotes - Admin's resolution notes
- * @returns {Promise<boolean>} True if update was successful
- */
-// async function resolveRequest(requestId, status, resolutionNotes) {
-//     await connectDatabase();
-
-//     const updateData = {
-//         status: status,
-//         resolutionNotes: resolutionNotes,
-//         resolvedAt: new Date(),
-//         updatedAt: new Date()
-//     };
-
-//     const result = await db.collection("requests").updateOne(
-//         { _id: new ObjectId(requestId) },
-//         { $set: updateData }
-//     );
-
-//     return result.modifiedCount === 1;
-// }
 
 async function resolveRequest(requestId, status, resolutionNotes) {
     await connectDatabase();

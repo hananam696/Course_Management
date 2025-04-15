@@ -42,32 +42,27 @@ async function registerUser(userData) {
 
     if (!isValidEmail(email)) throw new Error('Invalid email format');
 
-    // Check existing users
     const existingEmail = await persistence.findUserByEmail(email);
     if (existingEmail) throw new Error('Email already exists');
 
     const existingUser = await persistence.findUserByUsername(username);
     if (existingUser) throw new Error('Username already taken');
 
-     // Validate password match
     if (userData.password !== userData.repeatPassword) {
         throw new Error('Passwords do not match');
     }
 
-    // Validate password strength
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
         throw new Error('Password must be minimum 8 characters and it must include at least one letter and number');
     }
 
-    // Hash password and generate activation
     const hashedPassword = await computeHash(password);
     const activationCode = crypto.randomBytes(16).toString('hex');
     const hashedActivationCode = await computeActivationCodeHash(activationCode);
 
     console.log(`Email sent to ${email} with activation code: ${activationCode}`);
 
-    // Create user with default account type
     return persistence.createUser({
         username,
         email,
@@ -173,7 +168,7 @@ async function resetPassword(email) {
     if (!user) return;
 
     user.resetKey = crypto.randomUUID();
-    user.resetKeyExpiry = Date.now() + 120000; // 2 minutes
+    user.resetKeyExpiry = Date.now() + 120000;
     await persistence.updateUser(user);
     console.log(`Password reset link: http://localhost:8080/activate-password?key=${encodeURIComponent(user.resetKey)}`);
 }
@@ -187,7 +182,6 @@ async function setPassword(key, newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
     await persistence.updatePassword(key, hashedPassword);
 
-    // Clear reset credentials
     const user = await persistence.checkReset(key);
     if (user) {
         await persistence.updateUser({
@@ -220,7 +214,6 @@ async function createRequest(requestData) {
 
 async function getUserRequests(email) {
     try {
-        // Return ALL requests without filtering by status
         return await persistence.getRequestsByEmail(email);
     } catch (error) {
         console.error('Error in getUserRequests:', error);
@@ -239,7 +232,7 @@ async function getRequestsBySemester(email, semester) {
         const allRequests = await persistence.getRequestsByEmail(email);
 
         if (semester === 'all-2023') {
-            return allRequests; // Return all if "All Semesters" selected
+            return allRequests;
         }
 
         const targetYear = semester.split('-')[1];
@@ -248,7 +241,6 @@ async function getRequestsBySemester(email, semester) {
             return requestYear === targetYear;
         });
     } catch (error) {
-        console.error('Error in getRequestsBySemester:', error);
         throw new Error('Error filtering requests by semester');
     }
 }
@@ -258,23 +250,20 @@ async function getPendingRequestCount() {
 }
 
 async function calculateEstimatedTime(queuePosition) {
-    const WORKING_HOURS = { start: 8, end: 17 }; // 8am-5pm
+    const WORKING_HOURS = { start: 8, end: 17 };
     const MINUTES_PER_REQUEST = 15;
 
     let estimatedTime = new Date();
     let minutesRemaining = queuePosition * MINUTES_PER_REQUEST;
 
-    // Adjust for current time outside working hours/weekends
     while (estimatedTime.getHours() < WORKING_HOURS.start ||
            estimatedTime.getHours() >= WORKING_HOURS.end ||
-           estimatedTime.getDay() === 0 || // Sunday
-           estimatedTime.getDay() === 6) { // Saturday
-        // Move to next working day at 8am
+           estimatedTime.getDay() === 0 ||
+           estimatedTime.getDay() === 6) {
         estimatedTime.setDate(estimatedTime.getDate() + 1);
         estimatedTime.setHours(WORKING_HOURS.start, 0, 0, 0);
     }
 
-    // Process time in working hours only
     while (minutesRemaining > 0) {
         const endOfDay = new Date(estimatedTime);
         endOfDay.setHours(WORKING_HOURS.end, 0, 0, 0);
@@ -286,7 +275,6 @@ async function calculateEstimatedTime(queuePosition) {
         minutesRemaining -= minutesToProcess;
 
         if (minutesRemaining > 0) {
-            // Move to next working day
             estimatedTime.setDate(estimatedTime.getDate() + 1);
             estimatedTime.setHours(WORKING_HOURS.start, 0, 0, 0);
         }
@@ -300,13 +288,13 @@ async function formatQatarDate(date) {
 
     return new Date(date).toLocaleString('en-US', {
         timeZone: 'Asia/Qatar',
-        weekday: 'long',      // "Monday"
-        month: 'long',        // "April"
-        day: 'numeric',       // "14"
-        hour: '2-digit',      // "07"
-        minute: '2-digit',    // "17"
-        hour12: true          // AM/PM
-    }).replace(',', ' at');   // "Monday, April 14 at 07:17 AM"
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    }).replace(',', ' at');
 }
 
 /**
@@ -318,7 +306,6 @@ async function formatQatarDate(date) {
  */
 async function cancelRequest(requestId, userEmail) {
     try {
-        // Convert string ID to ObjectId if needed
         const request = await persistence.cancelRequest(requestId, userEmail);
 
         return {
@@ -327,34 +314,28 @@ async function cancelRequest(requestId, userEmail) {
             cancelledAt: request.cancelledAt || new Date()
         };
     } catch (error) {
-        console.error('Error in business.cancelRequest:', error);
-        throw error; // Re-throw for the route handler
+        //console.error('Error in business.cancelRequest:', error);
+        throw error;
     }
 }
 
 async function getCancelledRequests(email, semester = null) {
-    // Create the base query
     let query = {
         studentEmail: email,
         status: 'Cancelled'
     };
-
-    // Add semester filter if specified
     if (semester && semester !== 'all-2025') {
         query.semester = semester;
     }
 
-    // Get the raw requests from persistence
     const requests = await persistence.getCancelledRequests(query);
     const formattedRequests = [];
 
-    // Manually process each request
     for (let i = 0; i < requests.length; i++) {
         const request = requests[i];
 
-        // Create a new object with the required transformations
         const formattedRequest = {
-            _id: request._id.toString(), // Convert ObjectId to string
+            _id: request._id.toString(),
             studentEmail: request.studentEmail,
             studentName: request.studentName,
             category: request.category,
@@ -365,7 +346,7 @@ async function getCancelledRequests(email, semester = null) {
             estimatedTime: request.estimatedTime,
             cancelledAt: request.cancelledAt || request.updatedAt,
             updatedAt: request.updatedAt
-            // Include any other fields you need
+
         };
 
         formattedRequests.push(formattedRequest);
@@ -388,7 +369,6 @@ async function getRequestDetails(requestId, userEmail = null) {
             throw new Error('Request not found');
         }
 
-        // Only check ownership if userEmail is provided (for student views)
         if (userEmail && request.studentEmail !== userEmail) {
             throw new Error('Unauthorized access to request');
         }
@@ -417,7 +397,6 @@ async function getDashboardQueues() {
     try {
         const categoryCounts = await persistence.getPendingRequestCountsByCategory();
 
-        // Create a mapping of possible database names to your display names
         const categoryMapping = {
             'Course Registration': 'Course Registration',
             'Grade Appeal': 'Grade Appeal',
@@ -429,13 +408,11 @@ async function getDashboardQueues() {
             'Other': 'Other'
         };
 
-        // Initialize all categories with count 0 using your display names
         const allCategories = Object.values(categoryMapping).map(name => ({
             name,
             count: 0
         }));
 
-        // Update counts from database results
         for (const dbCategory of categoryCounts) {
             const displayName = categoryMapping[dbCategory._id] || dbCategory._id;
             const category = allCategories.find(c => c.name === displayName);
@@ -459,10 +436,7 @@ async function getDashboardQueues() {
  */
 async function getQueueRequests(category) {
     try {
-        // Convert category name to match database format if needed
         const requests = await persistence.getRequestsByCategory(category);
-
-        // Format the data for presentation
         return requests.map(request => ({
             ...request,
             _id: request._id.toString(),
@@ -474,9 +448,6 @@ async function getQueueRequests(category) {
         throw new Error('Failed to get queue requests');
     }
 }
-
-
-// Helper function to get CSS class for status
 function getStatusClass(status) {
     const statusClasses = {
         'Pending': 'warning',
@@ -488,36 +459,26 @@ function getStatusClass(status) {
 
 async function resolveRequest(requestId, status, resolutionNotes) {
     try {
-        console.log('[Business Layer] Resolving request:', {
+         {
             requestId,
             status,
             resolutionNotes
-        });
+        };
 
-        // 1. First verify the request exists
         const existingRequest = await persistence.getRequestById(requestId);
         if (!existingRequest) {
             throw new Error('Request not found');
         }
-        console.log('Existing status:', existingRequest.status);
-
-        // 2. Update in persistence
         const updateSuccess = await persistence.resolveRequest(
             requestId,
             status,
             resolutionNotes
         );
-        console.log('Persistence update success:', updateSuccess);
-
-        // 3. Verify update
         const updatedRequest = await persistence.getRequestById(requestId);
-        console.log('Updated status:', updatedRequest.status);
-
         if (updatedRequest.status !== status) {
             throw new Error('Status update verification failed');
         }
 
-        // 4. Send notification
         console.log('Sending notification...');
         await this.sendStatusEmail(
             updatedRequest.studentEmail,
@@ -527,7 +488,7 @@ async function resolveRequest(requestId, status, resolutionNotes) {
 
         return updatedRequest;
     } catch (error) {
-        console.error('[Business Layer Error]', error);
+       // console.error('[Business Layer Error]', error);
         throw error;
     }
 }
@@ -546,7 +507,7 @@ async function sendStatusEmail(email, status, notes) {
     console.log(`Dear Student,\n\nYour request has been ${status}.`);
     if (notes) console.log(`\nAdministrator Notes: ${notes}`);
     console.log('=========================\n');
-    return true; // Simulate successful send
+    return true;
 }
 
 module.exports = {
