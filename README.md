@@ -105,6 +105,10 @@ Our collaborative approach ensured not only a seamless and well-executed outcome
 - Did the filter by semester function
 - If after filter by semester and it has no information for a particular semester for this case validation has been done
 - Logout function and routing created
+- added admin queue fucntion , reject or approve function when it clicks it shows email verification and goes to student page there all
+  it is fixed
+- cancelled req from view req was initially not there fixed it and also those cancelled request will not have cancel request button also done
+- created the random request part, when u click it goes to tht page with random request generated
 
 ## Extra Requirements Done
 
