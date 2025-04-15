@@ -386,6 +386,18 @@ async function getRequestDetails(requestId) {
     }
 }
 
+/**
+ * Gets a random pending request from any queue
+ * @returns {Promise<Object|null>} Random request or null if none found
+ */
+async function getRandomPendingRequest() {
+    await connectDatabase();
+    return db.collection("requests").aggregate([
+        { $match: { status: "Pending" } },
+        { $sample: { size: 1 } }
+    ]).next();
+}
+
 module.exports = {
     findUserByUsername,
     createUser,

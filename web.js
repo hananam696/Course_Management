@@ -658,5 +658,62 @@ app.get('/admin/queue/:category', async (req, res) => {
     }
 });
 
+// Show random request form
+app.get('/admin/process-random', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session?.user?.isAdmin) {
+            return res.redirect('/login');
+        }
+
+        const randomRequest = await business.getRandomPendingRequest();
+
+        res.render('random_request', {
+            layout: false,
+            request: randomRequest,
+            helpers: {
+                formatDate: function(date) {
+                    if (!date) return 'N/A';
+                    return new Date(date).toLocaleString('en-US', {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error getting random request:', error);
+        res.redirect('/admin?error=Failed+to+get+random+request');
+    }
+});
+
+// Handle random request resolution
+app.post('/admin/process-random/resolve', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session?.user?.isAdmin) {
+            return res.redirect('/login');
+        }
+
+        const { requestId, action, resolutionNotes } = req.body;
+        const status = action === 'approve' ? 'Approved' : 'Rejected';
+
+        await business.resolveRequest(requestId, status, resolutionNotes);
+
+        res.redirect('/admin/process-random?success=Request+processed');
+    } catch (error) {
+        console.error('Error resolving random request:', error);
+        res.redirect('/admin/process-random?error=' + encodeURIComponent(error.message));
+    }
+});
+
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));

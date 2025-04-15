@@ -311,7 +311,7 @@ async function cancelRequest(requestId, userEmail) {
     } catch (error) {
 
         console.error('Error in business.cancelRequest:', error);
-        throw error; 
+        throw error;
     }
 }
 
@@ -517,6 +517,14 @@ async function sendStatusEmail(email, status, notes) {
     return true;
 }
 
+/**
+ * Gets a random pending request from any queue
+ * @returns {Promise<Object|null>} Random request or null if none found
+ */
+async function getRandomPendingRequest() {
+    return await persistence.getRandomPendingRequest();
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -539,5 +547,6 @@ module.exports = {
     getDashboardQueues,
     getQueueRequests,
     resolveRequest,
-    sendStatusEmail
+    sendStatusEmail,
+    getRandomPendingRequest
 };
