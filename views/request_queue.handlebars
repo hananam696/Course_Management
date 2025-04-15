@@ -19,6 +19,18 @@
         .badge-pending {
             background-color: #fd7e14;
         }
+        .time-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .time-label {
+            font-weight: 500;
+        }
+        .serial-number {
+            font-weight: bold;
+            color: #495057;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -42,30 +54,38 @@
 
         {{#if requests.length}}
             <div class="row">
-                {{#each requests}}
-                <div class="col-md-6">
-                    <div class="card request-card {{#if (eq status 'Cancelled')}}cancelled{{else if (eq status 'Completed')}}completed{{/if}}">
+                <div class="col-12">
+                    {{#each requests}}
+                    <div class="card request-card {{#if (eq status 'Cancelled')}}cancelled{{else if (eq status 'Completed')}}completed{{/if}} mb-3">
                         <div class="card-body">
-                            <h5 class="card-title">{{studentName}}</h5>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="serial-number">{{add @index 1}}.</span>
+                                <h5 class="card-title mb-0">{{studentName}}</h5>
+                            </div>
                             <h6 class="card-subtitle mb-2 text-muted">{{studentEmail}}</h6>
                             <p class="card-text">{{description}}</p>
-                            <div class="d-flex justify-content-between">
-                                <span class="badge rounded-pill {{#if (eq status 'Pending')}}badge-pending{{else}}bg-{{statusClass}}{{/if}}">
+
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-warning {{#if (eq status 'Pending')}}badge-pending{{else}}bg-{{statusClass}}{{/if}}">
                                     {{status}}
                                 </span>
-                                <small class="text-muted">{{formatDate createdAt}}</small>
                             </div>
+
+                            <!-- Estimated Completion Time Section - Only for Pending requests -->
+                            {{#if (eq status 'Pending')}}
+                            <div class="time-info">
+                                <span class="time-label">Estimated Completion:</span>
+                                <span>{{formatDate estimatedTime}}</span>
+                            </div>
+                            {{/if}}
+
                             <div class="mt-3">
                                 <a href="/admin/request/{{_id}}" class="btn btn-sm btn-primary">View Details</a>
-                                {{#if (eq status 'Pending')}}
-                                    <button class="btn btn-sm btn-success">Approve</button>
-                                    <button class="btn btn-sm btn-danger">Reject</button>
-                                {{/if}}
                             </div>
                         </div>
                     </div>
+                    {{/each}}
                 </div>
-                {{/each}}
             </div>
         {{else}}
             <div class="alert alert-info">
