@@ -76,12 +76,15 @@ app.get('/activate', (req, res) => res.render('activate', { layout: false }));
  * Serves the admin panel.
  * @route GET /admin
  */
+
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'admin.html'));
+    //res.sendFile(path.join(__dirname, 'dist', 'admin.html'));
+     
 });
+
 // Update your /admin route in web.js to this:
 
-app.get('/admin', async (req, res) => {
+/* app.get('/admin', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
 
@@ -138,6 +141,98 @@ app.get('/admin', async (req, res) => {
     } catch (err) {
         console.error('Admin dashboard error:', err);
         res.redirect('/login');
+    }
+}); */
+
+console.log('Admin route hit!');
+app.get('/admin', async (req, res) => {
+    
+console.log('Admin route hit!');
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        if (!sessionKey) return res.redirect('/login');
+
+        const session = await business.getSessionData(sessionKey);
+        if (!session || !session.user) return res.redirect('/login');
+
+        const isAdmin = session.user.isAdmin ||
+            session.user.accountType === 'Admin' ||
+            session.user.username === 'admin' ||
+            session.user.email === 'admin@udst.edu.qa';
+
+        if (!isAdmin) return res.status(403).send('Access denied. Admins only.');
+
+        // 🔍 Add this utility function
+        const measure = async (label, fn) => {
+            const start = Date.now();
+            try {
+                const result = await fn();
+                console.log(`${label} took ${Date.now() - start}ms`);
+                return result;
+            } catch (err) {
+                console.error(`${label} failed:`, err);
+                return null;
+            }
+        };
+        
+
+        // ⏱ Wrap all data fetching calls with logging
+        console.log('Fetching dashboard data...');
+
+        const [
+            pendingRequests,
+            completedRequests,
+            activeUsers,
+            avgResponseTime,
+            recentRequests,
+            totalUsers,
+            totalSessions,
+            inProgressRequests,
+            rejectedRequests
+        ] = await Promise.all([
+            measure('getPendingRequestCount', () => business.getPendingRequestCount()),
+            measure('getCompletedRequestCount', () => business.getCompletedRequestCount()),
+            measure('getActiveUserCount', () => business.getActiveUserCount()),
+            measure('getAvgResponseTime', () => business.getAvgResponseTime()),
+            measure('getRecentRequests', () => business.getRecentRequests(10)),
+            measure('getTotalUsers', () => business.getTotalUsers()),
+            measure('getTotalSessions', () => business.getTotalSessions()),
+            measure('getInProgressRequestCount', () => business.getInProgressRequestCount()),
+            measure('getRejectedRequestCount', () => business.getRejectedRequestCount())
+        ]);
+
+        const dashboardData = {
+            pendingRequests,
+            completedRequests,
+            activeUsers,
+            avgResponseTime,
+            recentRequests,
+            cards: [
+                { value: totalUsers, change: '12.4', arrow: 'bottom', label: 'Users', color: 'primary' },
+                { value: '$6.200', change: '40.9', arrow: 'top', label: 'Income', color: 'success' },
+                { value: '2.49%', change: '84.7', arrow: 'top', label: 'Conversion Rate', color: 'warning' },
+                { value: totalSessions, change: '23.6', arrow: 'bottom', label: 'Sessions', color: 'danger' }
+            ],
+            stats: [
+                { label: 'Pending', value: pendingRequests, percentage: '60', color: 'primary' },
+                { label: 'In Progress', value: inProgressRequests, percentage: '20', color: 'info' },
+                { label: 'Completed', value: completedRequests, percentage: '15', color: 'success' },
+                { label: 'Rejected', value: rejectedRequests, percentage: '5', color: 'danger' }
+            ]
+        };
+
+        res.render('admin.dashboard', {
+            layout: 'admin',
+            title: 'Admin Dashboard',
+            ...dashboardData,
+            user: session.user
+        });
+
+    } catch (err) {
+        console.error('Admin dashboard error:', err);
+        res.redirect('/login');
+        console.error(err.stack);
+
     }
 });
 
