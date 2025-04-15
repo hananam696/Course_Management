@@ -415,7 +415,7 @@ app.get('/student/requests', async (req, res) => {
         // Filter out cancelled requests and filter by semester if specified
         userRequests = userRequests.filter(request => {
             const semesterMatch = !semester || semester === 'all-2025' || request.semester === semester;
-            return request.status !== 'Cancelled' && semesterMatch;
+            return semesterMatch;
         });
 
         res.render('view_req', {
@@ -431,6 +431,35 @@ app.get('/student/requests', async (req, res) => {
         res.redirect('/?error=Failed to load requests');
     }
 });
+
+// app.get('/student/requests', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session || !session.user) return res.redirect('/login');
+
+//         const semester = req.query.semester;
+//         let userRequests = await business.getUserRequests(session.user.email);
+
+//         // Only filter by semester, not status
+//         userRequests = userRequests.filter(request =>
+//             !semester || semester === 'all-2025' || request.semester === semester
+//         );
+
+//         res.render('view_req', {
+//             layout: false,
+//             userRequests,
+//             selectedSemester: semester,
+//             message: semester && semester !== 'all-2025'
+//                 ? `Showing ${semester} requests`
+//                 : 'Showing all requests'
+//         });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.redirect('/?error=Failed to load requests');
+//     }
+// });
 
 // Handle cancellation form submission
 app.post('/student/requests/cancel', async (req, res) => {
@@ -486,7 +515,26 @@ app.get('/student/cancel', async (req, res) => {
         res.redirect('/student/requests?error=' + encodeURIComponent(error.message));
     }
 });
+// app.get('/student/cancel', async (req, res) => {
+//     try {
+//         const session = await verifySession(req);
+//         const semester = req.query.semester;
 
+//         // This still only gets cancelled requests
+//         const cancelledRequests = await business.getCancelledRequests(
+//             session.user.email,
+//             semester
+//         );
+
+//         res.render('cancel_req', {
+//             layout: false,
+//             cancelledRequests,
+//             selectedSemester: semester || 'all-2025'
+//         });
+//     } catch (error) {
+//         handleError(res, error);
+//     }
+// });
 
 app.get('/request/details/:id', async (req, res) => {
     try {
