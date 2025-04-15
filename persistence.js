@@ -370,6 +370,9 @@ async function getRequestsByCategory(category, status = 'Pending') {
         .sort({ createdAt: 1 }) // Oldest first
         .toArray();
 }
+
+
+
 module.exports = {
     findUserByUsername,
     createUser,

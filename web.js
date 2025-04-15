@@ -539,19 +539,43 @@ app.get('/request/details/:id', async (req, res) => {
  * GET /admin/queue/:category
  * Shows all requests in a specific category queue
  */
-app.get('admin/queue/:category', async (req, res) => {
+// Fix the route by adding the leading slash
+app.get('/admin/queue/:category', async (req, res) => {
     try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+        
+        if (!session || !session.user || !session.user.isAdmin) {
+            return res.redirect('/login');
+        }
+
         const category = req.params.category;
-        const requests = await requestService.getQueueRequests(category);
+        const requests = await business.getQueueRequests(category);
 
         res.render('request_queue', {
-            title: `${category} Queue`,
-            categoryLabel: category,
-            requests: requests
+            layout: false,
+            title: `${category} Requests`,
+            category: category,
+            requests: requests,
+            helpers: {
+                formatDate: function(date) {
+                    if (!date) return 'N/A';
+                    return new Date(date).toLocaleString('en-US', {
+                        timeZone: 'Asia/Qatar',
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                }
+            }
         });
     } catch (error) {
         console.error('Error loading queue:', error);
         res.status(500).render('error', {
+            layout: false,
             message: 'Failed to load queue',
             error: error
         });

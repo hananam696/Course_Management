@@ -458,13 +458,13 @@ async function getDashboardQueues() {
 async function getQueueRequests(category) {
     try {
         // Convert category name to match database format if needed
-        const dbCategory = category.replace(' ', '_');
-        const requests = await persistence.getRequestsByCategory(dbCategory);
-
+        const requests = await persistence.getRequestsByCategory(category);
+        
         // Format the data for presentation
         return requests.map(request => ({
             ...request,
-            formattedDate: formatDate(request.createdAt),
+            _id: request._id.toString(),
+            createdAt: request.createdAt,
             statusClass: getStatusClass(request.status)
         }));
     } catch (error) {
@@ -472,7 +472,6 @@ async function getQueueRequests(category) {
         throw new Error('Failed to get queue requests');
     }
 }
-
 
 
 // Helper function to get CSS class for status
