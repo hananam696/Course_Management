@@ -187,6 +187,7 @@ app.post('/register', async (req, res) => {
         `);
     }
 });
+//comment
 
 /**
  * Handles user login and session creation.
