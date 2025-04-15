@@ -173,7 +173,6 @@ async function checkReset(key) {
     return await persistence.checkReset(key);
 }
 
-
 async function setPassword(key, newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
     await persistence.updatePassword(key, hashedPassword);
@@ -313,10 +312,6 @@ async function cancelRequest(requestId, userEmail) {
 
         console.error('Error in business.cancelRequest:', error);
         throw error; 
-
-        //console.error('Error in business.cancelRequest:', error);
-        throw error;
-
     }
 }
 
@@ -452,7 +447,6 @@ async function getQueueRequests(category) {
 
 
 // Helper function to get CSS class for status
-
 function getStatusClass(status) {
     const statusClasses = {
         'Pending': 'warning',
@@ -478,7 +472,6 @@ async function resolveRequest(requestId, status, resolutionNotes) {
         console.log('Existing status:', existingRequest.status);
 
         //Update in persistence
-
         const updateSuccess = await persistence.resolveRequest(
             requestId,
             status,
@@ -488,17 +481,12 @@ async function resolveRequest(requestId, status, resolutionNotes) {
         console.log('Persistence update success:', updateSuccess);
 
         //Verify update
-
-
         const updatedRequest = await persistence.getRequestById(requestId);
         if (updatedRequest.status !== status) {
             throw new Error('Status update verification failed');
         }
 
-
         //Send notification
-
-
         console.log('Sending notification...');
         await this.sendStatusEmail(
             updatedRequest.studentEmail,
@@ -508,7 +496,6 @@ async function resolveRequest(requestId, status, resolutionNotes) {
 
         return updatedRequest;
     } catch (error) {
-       // console.error('[Business Layer Error]', error);
         throw error;
     }
 }

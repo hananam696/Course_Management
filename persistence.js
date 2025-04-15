@@ -1,7 +1,6 @@
 const { MongoClient } = require("mongodb");
 const { ObjectId } = require('mongodb');
 
-
 const uri = "mongodb+srv://60104758:12class34@webproject.m9qp9.mongodb.net/";
 const client = new MongoClient(uri);
 let db, sessionCollection;
@@ -320,16 +319,6 @@ async function getRandomPendingRequest() {
  * @param {string} [status='Pending'] - The status to filter by
  * @returns {Promise<Array>} List of requests
  */
-/*
- * Updates request status and adds resolution notes
- * @param {string} requestId - The request ID
- * @param {string} newStatus - 'Approved' or 'Rejected'
- * @param {string} resolutionNotes - Department head's comments
- * @returns {Promise<Object>} Updated request
- */
-
-
-
 async function getRequestsByCategory(category, status = 'Pending') {
     await connectDatabase();
     return db.collection("requests")
@@ -340,7 +329,6 @@ async function getRequestsByCategory(category, status = 'Pending') {
         .sort({ createdAt: 1 }) // Oldest first
         .toArray();
 }
-
 
 async function getRequestById(requestId) {
     await connectDatabase();
@@ -360,7 +348,6 @@ async function getRequestById(requestId) {
  * @param {string} resolutionNotes - Admin's resolution notes
  * @returns {Promise<boolean>} True if update was successful
  */
-
 async function resolveRequest(requestId, status, resolutionNotes) {
     await connectDatabase();
     console.log('[Persistence] Updating request:', requestId);
