@@ -193,19 +193,6 @@ async function getPendingRequestCount() {
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
-/*
-async function getRequestById(requestId) {
-    await connectDatabase();
-    try {
-        const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
-        return await db.collection('requests').findOne({ _id: oid });
-    } catch (error) {
-        console.error('Error in getRequestById:', error);
-        throw new Error('Invalid request ID');
-    }
-}
-*/
-
 async function updateRequest(requestId, updateData) {
     await connectDatabase();
     try {
@@ -223,11 +210,7 @@ async function updateRequest(requestId, updateData) {
 
 async function cancelRequest(requestId, userEmail) {
     await connectDatabase();
-
-    // Convert to ObjectId if valid
     const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
-
-    // First verify the request exists and belongs to the user
     const request = await db.collection('requests').findOne({
         _id: oid,
         studentEmail: userEmail
