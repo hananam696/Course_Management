@@ -424,7 +424,7 @@ async function getDashboardQueues() {
             'Leave of Absence': 'Leave of Absence',
             'Financial Aid': 'Financial Aid',
             'Academic Advising': 'Academic Advising',
-            'Officer': 'Officer'
+            'Other': 'Other'
         };
 
         // Initialize all categories with count 0 using your display names
@@ -459,7 +459,7 @@ async function getQueueRequests(category) {
     try {
         // Convert category name to match database format if needed
         const requests = await persistence.getRequestsByCategory(category);
-        
+
         // Format the data for presentation
         return requests.map(request => ({
             ...request,
