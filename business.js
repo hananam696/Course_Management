@@ -485,68 +485,6 @@ function getStatusClass(status) {
     return statusClasses[status] || 'secondary';
 }
 
-
-
-
-
-// async function resolveRequest(requestId, newStatus, resolutionNotes) {
-//     await connectDatabase();
-//     const updateData = {
-//         status: newStatus,
-//         resolvedAt: new Date(),
-//         resolutionNotes: resolutionNotes,
-//         updatedAt: new Date()
-//     };
-
-//     await db.collection("requests").updateOne(
-//         { _id: new ObjectId(requestId) },
-//         { $set: updateData }
-//     );
-
-//     return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
-// }
-
-// async function resolveRequest(requestId, status, resolutionNotes) {
-//     try {
-//         // 1. Validate status
-//         if (!['Approved', 'Cancelled'].includes(status)) {
-//             throw new Error('Invalid status value');
-//         }
-
-//         // 2. Update request in persistence
-//         const updated = await persistence.resolveRequest(
-//             requestId,
-//             status,
-//             resolutionNotes
-//         );
-
-//         if (!updated) {
-//             throw new Error('Failed to update request status');
-//         }
-
-//         // 3. Get updated request details
-//         const request = await persistence.getRequestById(requestId);
-//         if (!request) {
-//             throw new Error('Request not found after update');
-//         }
-
-//         // 4. Send notification email (simulated)
-//         await this.sendStatusEmail(
-//             request.studentEmail,
-//             status,
-//             resolutionNotes
-//         );
-
-//         return {
-//             ...request,
-//             _id: request._id.toString() // Ensure ID is string for consistency
-//         };
-//     } catch (error) {
-//         console.error('Error in resolveRequest:', error);
-//         throw error; // Re-throw for route handler
-//     }
-// }
-
 async function resolveRequest(requestId, status, resolutionNotes) {
     try {
         console.log('[Business Layer] Resolving request:', {
