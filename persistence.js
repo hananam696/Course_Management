@@ -1,5 +1,4 @@
 const { MongoClient } = require("mongodb");
-//const mongodb = require('mongodb');
 const { ObjectId } = require('mongodb');
 
 
@@ -245,6 +244,7 @@ async function getCancelledRequests(query) {
              .sort({ cancelledAt: -1 })
              .toArray();
 }
+
 /**
  * Updates request status with additional validation
  * @param {string} requestId - The request ID
@@ -262,7 +262,6 @@ async function updateRequestStatus(requestId, newStatus) {
         throw new Error('Request not found');
     }
 
-    // Validate status transition
     if (currentRequest.status === 'Completed' && newStatus !== 'Completed') {
         throw new Error('Completed requests cannot be modified');
     }
@@ -303,6 +302,7 @@ async function getPendingRequestCountsByCategory() {
         throw error;
     }
 }
+
 /**
  * Gets a random pending request from any category
  * @returns {Promise<Object|null>} Random request or null if none
@@ -314,33 +314,6 @@ async function getRandomPendingRequest() {
         { $sample: { size: 1 } }
     ]).next();
 }
-
-/**
- * Updates request status and adds resolution notes
- * @param {string} requestId - The request ID
- * @param {string} newStatus - 'Approved' or 'Rejected'
- * @param {string} resolutionNotes - Department head's comments
- * @returns {Promise<Object>} Updated request
- */
-
-/*
-async function resolveRequest(requestId, newStatus, resolutionNotes) {
-    await connectDatabase();
-    const updateData = {
-        status: newStatus,
-        resolvedAt: new Date(),
-        resolutionNotes: resolutionNotes
-    };
-
-    await db.collection("requests").updateOne(
-        { _id: new ObjectId(requestId) },
-        { $set: updateData }
-    );
-
-    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
-}
-*/
-
 
 /**
  * Gets all requests by category with status filtering
@@ -371,9 +344,6 @@ async function getRequestById(requestId) {
     }
 }
 
-// Add this method to update request status and resolution notes
-// Add/update these methods in persistence.js
-
 /**
  * Resolves a request with status and notes
  * @param {string} requestId - The request ID
@@ -381,24 +351,6 @@ async function getRequestById(requestId) {
  * @param {string} resolutionNotes - Admin's resolution notes
  * @returns {Promise<boolean>} True if update was successful
  */
-// async function resolveRequest(requestId, status, resolutionNotes) {
-//     await connectDatabase();
-
-//     const updateData = {
-//         status: status,
-//         resolutionNotes: resolutionNotes,
-//         resolvedAt: new Date(),
-//         updatedAt: new Date()
-//     };
-
-//     const result = await db.collection("requests").updateOne(
-//         { _id: new ObjectId(requestId) },
-//         { $set: updateData }
-//     );
-
-//     return result.modifiedCount === 1;
-// }
-
 async function resolveRequest(requestId, status, resolutionNotes) {
     await connectDatabase();
     console.log('[Persistence] Updating request:', requestId);
@@ -437,8 +389,6 @@ async function getRequestDetails(requestId) {
     }
 }
 
-
-
 module.exports = {
     findUserByUsername,
     createUser,
@@ -464,5 +414,6 @@ module.exports = {
     resolveRequest,
     getRequestsByCategory,
     getRequestById,
-    getRequestDetails
+    getRequestDetails,
+    getRandomPendingRequest
 };

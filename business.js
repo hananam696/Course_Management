@@ -124,13 +124,10 @@ async function loginUser(identifier, password) {
 
     if (!user) throw new Error('Invalid credentials');
     if (!user.active) throw new Error('Account not activated. Please verify your email.');
-
     const hashedPassword = await computeHash(password);
-
     if (hashedPassword !== user.password) throw new Error('Invalid credentials');
 
     const isAdmin = user.username === ADMIN_USERNAME || user.email === ADMIN_EMAIL || user.accountType === ACCOUNT_TYPE;
-
     const sessionKey = crypto.randomBytes(16).toString('hex');
     const sessionData = {
         sessionKey,
@@ -143,7 +140,6 @@ async function loginUser(identifier, password) {
     };
 
     await persistence.updateSession(sessionKey, sessionData);
-
     return {
         sessionKey,
         isAdmin,
@@ -186,8 +182,6 @@ async function checkReset(key) {
 async function setPassword(key, newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
     await persistence.updatePassword(key, hashedPassword);
-
-    // Clear reset credentials
     const user = await persistence.checkReset(key);
     if (user) {
         await persistence.updateUser({
@@ -229,7 +223,7 @@ async function getUserRequests(email) {
 }
 
 /**
- * NEW FUNCTION: Gets requests filtered by semester and email
+ * Gets requests filtered by semester and email
  * @param {string} email - Student email
  * @param {string} semester - Semester value (e.g., "spring-2024")
  * @returns {Promise<Array>} Filtered requests
@@ -328,7 +322,7 @@ async function cancelRequest(requestId, userEmail) {
         };
     } catch (error) {
         console.error('Error in business.cancelRequest:', error);
-        throw error; // Re-throw for the route handler
+        throw error; 
     }
 }
 
@@ -365,7 +359,6 @@ async function getCancelledRequests(email, semester = null) {
             estimatedTime: request.estimatedTime,
             cancelledAt: request.cancelledAt || request.updatedAt,
             updatedAt: request.updatedAt
-            // Include any other fields you need
         };
 
         formattedRequests.push(formattedRequest);
@@ -373,13 +366,13 @@ async function getCancelledRequests(email, semester = null) {
 
     return formattedRequests;
 }
+
 /**
  * Gets detailed information about a specific request.
  * @param {string} requestId - The ID of the request.
  * @param {string} userEmail - The email of the user making the request.
  * @returns {Promise<Object>} - The request details.
  */
-// In business.js
 async function getRequestDetails(requestId, userEmail = null) {
     try {
         const request = await persistence.getRequestById(requestId);
@@ -411,7 +404,6 @@ async function getRequestDetails(requestId, userEmail = null) {
         throw error;
     }
 }
-
 
 async function getDashboardQueues() {
     try {
@@ -475,7 +467,6 @@ async function getQueueRequests(category) {
     }
 }
 
-
 // Helper function to get CSS class for status
 function getStatusClass(status) {
     const statusClasses = {
@@ -494,14 +485,13 @@ async function resolveRequest(requestId, status, resolutionNotes) {
             resolutionNotes
         });
 
-        // 1. First verify the request exists
         const existingRequest = await persistence.getRequestById(requestId);
         if (!existingRequest) {
             throw new Error('Request not found');
         }
         console.log('Existing status:', existingRequest.status);
 
-        // 2. Update in persistence
+        //Update in persistence
         const updateSuccess = await persistence.resolveRequest(
             requestId,
             status,
@@ -509,7 +499,7 @@ async function resolveRequest(requestId, status, resolutionNotes) {
         );
         console.log('Persistence update success:', updateSuccess);
 
-        // 3. Verify update
+        //Verify update
         const updatedRequest = await persistence.getRequestById(requestId);
         console.log('Updated status:', updatedRequest.status);
 
@@ -517,7 +507,7 @@ async function resolveRequest(requestId, status, resolutionNotes) {
             throw new Error('Status update verification failed');
         }
 
-        // 4. Send notification
+        //Send notification
         console.log('Sending notification...');
         await this.sendStatusEmail(
             updatedRequest.studentEmail,
