@@ -159,6 +159,12 @@ async function deleteSession(key) {
     return await persistence.deleteSession(key);
 }
 
+/**
+ * Initiates a password reset process by generating a reset key and expiry time
+ * @param {string} email - The email address of the user requesting password reset
+ * @returns {Promise<void>} Resolves when reset process is initiated
+ * @throws {Error} If there's an issue updating the user record
+ */
 async function resetPassword(email) {
     const user = await persistence.findUserByEmail(email);
     if (!user) return;
@@ -169,10 +175,22 @@ async function resetPassword(email) {
     console.log(`Password reset link: http://localhost:8080/activate-password?key=${encodeURIComponent(user.resetKey)}`);
 }
 
+/**
+ * Validates a password reset key and checks if it's expired
+ * @param {string} key - The reset key to validate
+ * @returns {Promise<Object|null>} User document if key is valid and not expired, null otherwise
+ */
 async function checkReset(key) {
     return await persistence.checkReset(key);
 }
 
+/**
+ * Updates a user's password and clears the reset credentials
+ * @param {string} key - The valid reset key
+ * @param {string} newPassword - The new password to set
+ * @returns {Promise<void>} Resolves when password is updated
+ * @throws {Error} If reset key is invalid or password update fails
+ */
 async function setPassword(key, newPassword) {
     const hashedPassword = crypto.createHash('sha256').update(newPassword).digest('hex');
     await persistence.updatePassword(key, hashedPassword);
@@ -187,6 +205,17 @@ async function setPassword(key, newPassword) {
     }
 }
 
+/**
+ * Creates a new request in the system and logs confirmation
+ * @param {Object} requestData - The request data to create
+ * @param {string} requestData.studentName - Name of the student making the request
+ * @param {string} requestData.studentEmail - Email of the student making the request
+ * @param {string} requestData.category - Category of the request
+ * @param {string} requestData.description - Description of the request
+ * @param {string} requestData.semester - Semester the request relates to
+ * @returns {Promise<Object>} The created request document
+ * @throws {Error} If request creation fails
+ */
 async function createRequest(requestData) {
     try {
         const result = await persistence.insertRequest(requestData);
@@ -240,10 +269,21 @@ async function getRequestsBySemester(email, semester) {
     }
 }
 
+/**
+ * Retrieves the count of all pending requests in the system
+ * @returns {Promise<number>} The number of pending requests
+ * @throws {Error} If there's an error accessing the database
+ */
 async function getPendingRequestCount() {
     return await persistence.getPendingRequestCount();
 }
 
+/**
+ * Calculates the estimated completion time for a request based on queue position
+ * @param {number} queuePosition - The position in the processing queue (1-based index)
+ * @returns {Promise<Date>} The estimated completion date/time
+ * @description Accounts for working hours (8am-5pm) and skips weekends
+ */
 async function calculateEstimatedTime(queuePosition) {
     const WORKING_HOURS = { start: 8, end: 17 };
     const MINUTES_PER_REQUEST = 15;
@@ -278,6 +318,11 @@ async function calculateEstimatedTime(queuePosition) {
     return estimatedTime;
 }
 
+/**
+ * Formats a date for display in Qatar timezone
+ * @param {Date|string} date - The date to format
+ * @returns {Promise<string>} Formatted date string (e.g., "Monday April 15 at 02:30 PM") or "N/A" if null
+ */
 async function formatQatarDate(date) {
     if (!date) return 'N/A';
 
@@ -315,6 +360,13 @@ async function cancelRequest(requestId, userEmail) {
     }
 }
 
+/**
+ * Retrieves cancelled requests for a student with optional semester filtering
+ * @param {string} email - Student's email address
+ * @param {string} [semester=null] - Optional semester filter
+ * @returns {Promise<Array>} Array of formatted cancelled request objects
+ * @throws {Error} If database access fails
+ */
 async function getCancelledRequests(email, semester = null) {
     let query = {
         studentEmail: email,
@@ -389,6 +441,11 @@ async function getRequestDetails(requestId, userEmail = null) {
     }
 }
 
+/**
+ * Gets dashboard queue data with counts of pending requests by category
+ * @returns {Promise<Array>} Array of category objects with name and count properties
+ * @throws {Error} If data loading fails
+ */
 async function getDashboardQueues() {
     try {
         const categoryCounts = await persistence.getPendingRequestCountsByCategory();
@@ -456,6 +513,15 @@ function getStatusClass(status) {
     return statusClasses[status] || 'secondary';
 }
 
+/**
+ * Resolves a request by updating its status and adding resolution notes
+ * @param {string} requestId - The ID of the request to resolve
+ * @param {string} status - New status ('Approved' or 'Rejected')
+ * @param {string} resolutionNotes - Notes about the resolution
+ * @returns {Promise<Object>} The updated request document
+ * @throws {Error} If request not found, update fails, or notification fails
+ * @description Verifies the update and sends notification email to student
+ */
 async function resolveRequest(requestId, status, resolutionNotes) {
     try {
          {

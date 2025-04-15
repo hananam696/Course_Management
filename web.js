@@ -1,5 +1,11 @@
 /**
- * Express application setup.
+ * Express application setup for Student Request Management System
+ * @module web
+ * @requires express
+ * @requires express-handlebars
+ * @requires ./business
+ * @requires path
+ * @requires cookie-parser
  */
 const express = require('express');
 const handlebars = require('express-handlebars');
@@ -136,8 +142,11 @@ app.get('/admin', async (req, res) => {
 });
 
 /**
- * Handles user registration with new fields
+ * Handles user registration with validation.
  * @route POST /register
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
  */
 app.post('/register', async (req, res) => {
     try {
@@ -179,6 +188,13 @@ app.post('/register', async (req, res) => {
     }
 });
 
+/**
+ * Handles user login and session creation.
+ * @route POST /login
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/login', async (req, res) => {
     try {
         const { identifier, password } = req.body;
@@ -224,19 +240,44 @@ app.post('/activate', async (req, res) => {
     }
 });
 
+/**
+ * Renders the request submission page.
+ * @route GET /request
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.get('/request', (req, res) => {
     res.render('request', { layout: false });
 });
 
+/**
+ * Handles user logout by clearing session cookie.
+ * @route GET /logout
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.get('/logout', (req, res) => {
     res.clearCookie('sessionKey');
     res.redirect('/');
 });
 
+/**
+ * Renders the password reset initiation page.
+ * @route GET /forgot-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ */
 app.get('/forgot-password', (req, res) => {
     res.render('password-reset')
 })
 
+/**
+ * Handles password reset initiation.
+ * @route POST /forgot-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/forgot-password', async (req, res) => {
     await business.resetPassword(req.body.email);
     res.send(`
@@ -254,6 +295,13 @@ app.post('/forgot-password', async (req, res) => {
     `);
 });
 
+/**
+ * Handles password reset page with key validation.
+ * @route GET /reset-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/reset-password', async (req, res) => {
     const key = req.query.key;
     const isValid = await business.checkReset(key);
@@ -273,6 +321,13 @@ app.get('/reset-password', async (req, res) => {
     });
 });
 
+/**
+ * Handles new password submission.
+ * @route POST /reset-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/reset-password', async (req, res) => {
     try {
         const { password, confirm, key } = req.body;
@@ -295,6 +350,14 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
+
+/**
+ * Handles password reset key activation.
+ * @route GET /activate-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/activate-password', async (req, res) => {
     try {
         const key = req.query.key;
@@ -312,6 +375,13 @@ app.get('/activate-password', async (req, res) => {
     }
 });
 
+/**
+ * Handles manual password reset key submission.
+ * @route POST /activate-password
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/activate-password', async (req, res) => {
     try {
         const { key } = req.body;
@@ -326,6 +396,13 @@ app.post('/activate-password', async (req, res) => {
     }
 });
 
+/**
+ * Handles new request submission.
+ * @route POST /request
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/request', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -388,6 +465,13 @@ app.post('/request', async (req, res) => {
     }
 });
 
+/**
+ * Displays student's requests filtered by semester.
+ * @route GET /student/requests
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/student/requests', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -420,7 +504,13 @@ app.get('/student/requests', async (req, res) => {
     }
 });
 
-// Handle cancellation form submission
+/**
+ * Handles request cancellation.
+ * @route POST /student/requests/cancel
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/student/requests/cancel', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -439,6 +529,13 @@ app.post('/student/requests/cancel', async (req, res) => {
     }
 });
 
+/**
+ * Displays cancelled requests filtered by semester.
+ * @route GET /student/cancel
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/student/cancel', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -472,6 +569,13 @@ app.get('/student/cancel', async (req, res) => {
     }
 });
 
+/**
+ * Displays request details for a specific request.
+ * @route GET /request/details/:id
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/request/details/:id', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -517,6 +621,13 @@ app.get('/request/details/:id', async (req, res) => {
     }
 });
 
+/**
+ * Handles request resolution (approve/reject) by admin.
+ * @route POST /admin/request/:id/resolve
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/admin/request/:id/resolve', async (req, res) => {
     try {
         console.log('--- STARTING RESOLUTION ---');
@@ -558,8 +669,11 @@ app.post('/admin/request/:id/resolve', async (req, res) => {
 });
 
 /**
- * Shows request details for admin resolution
+ * Displays request details for admin resolution.
  * @route GET /admin/request/:id
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
  */
 app.get('/admin/request/:id', async (req, res) => {
     try {
@@ -607,9 +721,13 @@ app.get('/admin/request/:id', async (req, res) => {
     }
 });
 
+
 /**
- * Shows requests queue by category
+ * Displays requests queue by category for admin.
  * @route GET /admin/queue/:category
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
  */
 app.get('/admin/queue/:category', async (req, res) => {
     try {
@@ -658,7 +776,13 @@ app.get('/admin/queue/:category', async (req, res) => {
     }
 });
 
-// Show random request form
+/**
+ * Displays a random pending request for admin resolution
+ * @route GET /admin/process-random
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.get('/admin/process-random', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -667,9 +791,7 @@ app.get('/admin/process-random', async (req, res) => {
         if (!session?.user?.isAdmin) {
             return res.redirect('/login');
         }
-
         const randomRequest = await business.getRandomPendingRequest();
-
         res.render('random_request', {
             layout: false,
             request: randomRequest,
@@ -693,7 +815,13 @@ app.get('/admin/process-random', async (req, res) => {
     }
 });
 
-// Handle random request resolution
+/**
+ * Handles resolution of a random pending request (approve/reject)
+ * @route POST /admin/process-random/resolve
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/admin/process-random/resolve', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -702,12 +830,9 @@ app.post('/admin/process-random/resolve', async (req, res) => {
         if (!session?.user?.isAdmin) {
             return res.redirect('/login');
         }
-
         const { requestId, action, resolutionNotes } = req.body;
         const status = action === 'approve' ? 'Approved' : 'Rejected';
-
         await business.resolveRequest(requestId, status, resolutionNotes);
-
         res.redirect('/admin/process-random?success=Request+processed');
     } catch (error) {
         console.error('Error resolving random request:', error);

@@ -165,6 +165,11 @@ async function updatePassword(key, hashedPassword) {
     );
 }
 
+/**
+ * Validates a password reset key
+ * @param {string} key - Reset key to validate
+ * @returns {Promise<Object|null>} User document if key is valid, null otherwise
+ */
 async function checkReset(key) {
     await connectDatabase();
     return db.collection("users").findOne({
@@ -173,6 +178,11 @@ async function checkReset(key) {
     });
 }
 
+/**
+ * Creates a new request in the database
+ * @param {Object} request - Request data to insert
+ * @returns {Promise<Object>} The created request document
+ */
 async function insertRequest(request) {
     await connectDatabase();
     const requestCollection = db.collection("requests");
@@ -180,17 +190,33 @@ async function insertRequest(request) {
     return request;
 }
 
+/**
+ * Retrieves all requests for a specific student
+ * @param {string} email - Student's email address
+ * @returns {Promise<Array>} List of request documents
+ */
 async function getRequestsByEmail(email) {
     await connectDatabase();
     const requestCollection = db.collection("requests");
     return await requestCollection.find({ studentEmail: email }).toArray();
 }
 
+/**
+ * Counts all pending requests in the system
+ * @returns {Promise<number>} Count of pending requests
+ */
 async function getPendingRequestCount() {
     await connectDatabase();
     return db.collection("requests").countDocuments({ status: "Pending" });
 }
 
+/**
+ * Updates request data
+ * @param {string} requestId - Request ID to update
+ * @param {Object} updateData - Fields to update
+ * @returns {Promise<Object>} The updated request document
+ * @throws {Error} If request ID is invalid
+ */
 async function updateRequest(requestId, updateData) {
     await connectDatabase();
     try {
@@ -205,6 +231,13 @@ async function updateRequest(requestId, updateData) {
     }
 }
 
+/**
+ * Cancels a specific request with validation
+ * @param {string} requestId - Request ID to cancel
+ * @param {string} userEmail - Student's email for authorization
+ * @returns {Promise<Object>} The cancelled request document
+ * @throws {Error} If request not found or already cancelled
+ */
 async function cancelRequest(requestId, userEmail) {
     await connectDatabase();
     const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
@@ -235,6 +268,11 @@ async function cancelRequest(requestId, userEmail) {
     return { ...request, ...updateData };
 }
 
+/**
+ * Retrieves cancelled requests with optional filtering
+ * @param {Object} query - Filter criteria
+ * @returns {Promise<Array>} List of cancelled requests
+ */
 async function getCancelledRequests(query) {
     await connectDatabase();
     return db.collection('requests')
@@ -283,6 +321,10 @@ async function updateRequestStatus(requestId, newStatus) {
     return this.getRequestById(oid);
 }
 
+/**
+ * Counts pending requests grouped by category
+ * @returns {Promise<Array>} Aggregation result with category counts
+ */
 async function getPendingRequestCountsByCategory() {
     await connectDatabase();
     try {
