@@ -822,6 +822,13 @@ app.get('/admin/process-random', async (req, res) => {
  * @param {Response} res - Express response object
  * @async
  */
+/**
+ * Handles resolution of a random pending request (approve/reject)
+ * @route POST /admin/process-random/resolve
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @async
+ */
 app.post('/admin/process-random/resolve', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -830,13 +837,36 @@ app.post('/admin/process-random/resolve', async (req, res) => {
         if (!session?.user?.isAdmin) {
             return res.redirect('/login');
         }
+
         const { requestId, action, resolutionNotes } = req.body;
-        const status = action === 'approve' ? 'Approved' : 'Rejected';
+
+        // Validate required fields
+        if (!requestId || !action || !resolutionNotes) {
+            return res.status(400).send('Missing required fields');
+        }
+
+        // Determine the new status
+        const status = action === 'approve' ? 'Approved' : 'Cancelled';
+
+        // Resolve the request
         await business.resolveRequest(requestId, status, resolutionNotes);
-        res.redirect('/admin/process-random?success=Request+processed');
+
+        // Send success response with redirect to admin dashboard
+        res.send(`
+            <script>
+                alert("Request has been ${status} successfully!");
+                window.location.href = "/admin";
+            </script>
+        `);
+
     } catch (error) {
         console.error('Error resolving random request:', error);
-        res.redirect('/admin/process-random?error=' + encodeURIComponent(error.message));
+        res.status(500).send(`
+            <script>
+                alert("Error: ${error.message}");
+                window.location.href = "/admin/process-random";
+            </script>
+        `);
     }
 });
 

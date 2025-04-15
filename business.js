@@ -522,39 +522,40 @@ function getStatusClass(status) {
  * @throws {Error} If request not found, update fails, or notification fails
  * @description Verifies the update and sends notification email to student
  */
+/**
+ * Resolves a request by updating its status and adding resolution notes
+ * @param {string} requestId - The ID of the request to resolve
+ * @param {string} status - New status ('Approved' or 'Cancelled')
+ * @param {string} resolutionNotes - Notes about the resolution
+ * @returns {Promise<Object>} The updated request document
+ * @throws {Error} If request not found, update fails, or notification fails
+ */
 async function resolveRequest(requestId, status, resolutionNotes) {
     try {
-         {
-            requestId,
-            status,
-            resolutionNotes
-        };
-
         const existingRequest = await persistence.getRequestById(requestId);
         if (!existingRequest) {
             throw new Error('Request not found');
         }
 
-        console.log('Existing status:', existingRequest.status);
-
-        //Update in persistence
+        // Update in persistence
         const updateSuccess = await persistence.resolveRequest(
             requestId,
             status,
             resolutionNotes
         );
 
-        console.log('Persistence update success:', updateSuccess);
+        if (!updateSuccess) {
+            throw new Error('Failed to update request status');
+        }
 
-        //Verify update
+        // Verify update
         const updatedRequest = await persistence.getRequestById(requestId);
         if (updatedRequest.status !== status) {
             throw new Error('Status update verification failed');
         }
 
-        //Send notification
-        console.log('Sending notification...');
-        await this.sendStatusEmail(
+        // Send notification
+        await sendStatusEmail(
             updatedRequest.studentEmail,
             status,
             resolutionNotes
@@ -562,6 +563,7 @@ async function resolveRequest(requestId, status, resolutionNotes) {
 
         return updatedRequest;
     } catch (error) {
+        console.error('Error in resolveRequest:', error);
         throw error;
     }
 }
