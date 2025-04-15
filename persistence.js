@@ -372,6 +372,18 @@ async function getRequestsByCategory(category, status = 'Pending') {
         .toArray();
 }
 
+
+async function getRequestById(requestId) {
+    await connectDatabase();
+    try {
+        const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+        return await db.collection('requests').findOne({ _id: oid });
+    } catch (error) {
+        console.error('Error in getRequestById:', error);
+        throw new Error('Invalid request ID');
+    }
+}
+
 module.exports = {
     findUserByUsername,
     createUser,
@@ -395,5 +407,6 @@ module.exports = {
     getPendingRequestCount,
     getPendingRequestCountsByCategory,
     resolveRequest,
-    getRequestsByCategory
+    getRequestsByCategory,
+    getRequestById
 };

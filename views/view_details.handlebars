@@ -13,6 +13,7 @@
     .card-header { background-color: #0d6efd; color: white; }
     .list-group-item { padding: 1rem 1.25rem; }
     .card { border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); }
+    .process-section { margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem; }
   </style>
 </head>
 <body>
@@ -34,13 +35,19 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Request Details</h4>
-
+        <a href="{{#if isAdmin}}/admin{{else}}/student/requests{{/if}}" class="btn btn-light">← Back</a>
       </div>
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-md-6">
             <h5 class="mb-3">Basic Information</h5>
             <ul class="list-group">
+              <li class="list-group-item">
+                <strong>Student Name:</strong> {{request.studentName}}
+              </li>
+              <li class="list-group-item">
+                <strong>Student Email:</strong> {{request.studentEmail}}
+              </li>
               <li class="list-group-item">
                 <strong>Semester:</strong> {{request.semester}}
               </li>
@@ -97,21 +104,38 @@
           </div>
         </div>
         {{/if}}
+
+        {{#if isAdmin}}
+        <div class="process-section">
+          <h5>Process Request</h5>
+          <form action="/admin/request/{{request._id}}/resolve" method="POST">
+            <div class="mb-3">
+              <label for="resolutionNotes" class="form-label">Resolution Notes</label>
+              <textarea class="form-control" id="resolutionNotes" name="resolutionNotes" rows="3" required></textarea>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+              <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+              <a href="/admin" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+          </form>
+        </div>
+        {{else}}
         <div class="d-flex justify-content-between mt-4">
-  {{#if (eq request.status 'Pending')}}
-    <form action="/student/requests/cancel" method="POST" class="d-inline">
-      <input type="hidden" name="requestId" value="{{request._id}}">
-      <button type="submit" class="btn btn-danger">Cancel Request</button>
-    </form>
-  {{/if}}
+          {{#if (eq request.status 'Pending')}}
+            <form action="/student/requests/cancel" method="POST" class="d-inline">
+              <input type="hidden" name="requestId" value="{{request._id}}">
+              <button type="submit" class="btn btn-danger">Cancel Request</button>
+            </form>
+          {{/if}}
 
-  {{#if (eq request.status 'Cancelled')}}
-    <a href="/student/cancel" class="btn btn-secondary">Back to Cancelled Requests</a>
-  {{else}}
-    <a href="/student/requests" class="btn btn-secondary">Back to My Requests</a>
-  {{/if}}
-</div>
-
+          {{#if (eq request.status 'Cancelled')}}
+            <a href="/student/cancel" class="btn btn-secondary">Back to Cancelled Requests</a>
+          {{else}}
+            <a href="/student/requests" class="btn btn-secondary">Back to My Requests</a>
+          {{/if}}
+        </div>
+        {{/if}}
       </div>
     </div>
   </div>

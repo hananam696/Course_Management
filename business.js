@@ -484,6 +484,24 @@ function getStatusClass(status) {
     return statusClasses[status] || 'secondary';
 }
 
+
+async function resolveRequest(requestId, newStatus, resolutionNotes) {
+    await connectDatabase();
+    const updateData = {
+        status: newStatus,
+        resolvedAt: new Date(),
+        resolution: resolutionNotes,
+        updatedAt: new Date()
+    };
+
+    await db.collection("requests").updateOne(
+        { _id: new ObjectId(requestId) },
+        { $set: updateData }
+    );
+
+    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -504,5 +522,6 @@ module.exports = {
     getCancelledRequests,
     getRequestDetails,
     getDashboardQueues,
-    getQueueRequests
+    getQueueRequests,
+    resolveRequest
 };

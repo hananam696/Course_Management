@@ -582,5 +582,78 @@ app.get('/admin/queue/:category', async (req, res) => {
     }
 });
 
+// Add this route to web.js
+app.post('/admin/request/:id/resolve', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+        
+        if (!session || !session.user || !session.user.isAdmin) {
+            return res.redirect('/login');
+        }
+
+        const requestId = req.params.id;
+        const { action, resolutionNotes } = req.body;
+        
+        if (!['approve', 'reject'].includes(action)) {
+            throw new Error('Invalid action');
+        }
+
+        const status = action === 'approve' ? 'Approved' : 'Rejected';
+        
+        await business.resolveRequest(requestId, status, resolutionNotes);
+        
+        res.redirect(`/admin/request/${requestId}?success=Request+${status.toLowerCase()}`);
+    } catch (error) {
+        console.error('Error resolving request:', error);
+        res.redirect(`/admin/request/${req.params.id}?error=${encodeURIComponent(error.message)}`);
+    }
+});
+
+// Add this route to view admin request details
+app.get('/admin/request/:id', async (req, res) => {
+    try {
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+        
+        if (!session || !session.user || !session.user.isAdmin) {
+            return res.redirect('/login');
+        }
+
+        const requestId = req.params.id;
+        const request = await business.getRequestDetails(requestId);
+        
+        res.render('view_details', {
+            layout: false,
+            request: request,
+            isAdmin: true,
+            helpers: {
+                formatDate: function(date) {
+                    if (!date) return 'N/A';
+                    const d = new Date(date);
+                    return d.toLocaleString('en-US', {
+                        timeZone: 'Asia/Qatar',
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                },
+                eq: function(v1, v2) {
+                    return v1 === v2;
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching admin request details:', error);
+        res.redirect('/admin?error=' + encodeURIComponent(error.message));
+    }
+});
+
+
+
+
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
