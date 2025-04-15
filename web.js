@@ -92,8 +92,6 @@ app.get('/activate', (req, res) => res.render('activate', { layout: false }));
 
 
 app.get('/admin', async (req, res) => {
-
-
     try {
         const sessionKey = req.cookies.sessionKey;
         if (!sessionKey) return res.redirect('/login');
@@ -104,11 +102,11 @@ app.get('/admin', async (req, res) => {
             return res.redirect('/login');
         }
 
-        // Verify admin status
+        // ✅ Verify admin status
         const isAdmin = session.user.isAdmin ||
-                       session.user.accountType === 'Admin' ||
-                       session.user.username.toLowerCase() === 'admin' ||
-                       session.user.email.toLowerCase() === 'admin@udst.edu.qa';
+                        session.user.accountType === 'Admin' ||
+                        session.user.username.toLowerCase() === 'admin' ||
+                        session.user.email.toLowerCase() === 'admin@udst.edu.qa';
 
         if (!isAdmin) {
             return res.status(403).render('error', {
@@ -120,15 +118,19 @@ app.get('/admin', async (req, res) => {
             });
         }
 
-        // Get the categories data
         const categories = await business.getDashboardQueues();
 
-        // Render the admin dashboard with categories
+        // CSRF Protection (Synchronizer Token Pattern)
+        const csrfToken = Math.random().toString(36).substring(2); // Generate unique token
+        session.csrfToken = csrfToken; // Store it in server session (in-memory session object)
+
+        // Pass CSRF token to template for hidden form field
         res.render('admin', {
             title: 'Admin Dashboard',
             user: session.user,
             isAdmin: true,
-            categories: categories
+            categories: categories,
+            csrfToken: csrfToken // Send to client
         });
 
     } catch (error) {
@@ -142,6 +144,7 @@ app.get('/admin', async (req, res) => {
         });
     }
 });
+
 /**
  * Handles user registration with new fields
  * @route POST /register
@@ -579,77 +582,6 @@ app.get('/admin/queue/:category', async (req, res) => {
             message: 'Failed to load queue',
             error: error
         });
-    }
-});
-
-// Add this route in web.js for handling approve/reject
-app.post('/admin/request/:id/resolve', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-        
-        if (!session || !session.user || !session.user.isAdmin) {
-            return res.redirect('/login');
-        }
-
-        const requestId = req.params.id;
-        const { action, resolutionNotes } = req.body;
-        
-        if (!['approve', 'reject'].includes(action)) {
-            throw new Error('Invalid action');
-        }
-
-        const status = action === 'approve' ? 'Approved' : 'Rejected';
-        
-        await business.resolveRequest(requestId, status, resolutionNotes);
-        
-        res.redirect(`/admin/request/${requestId}?success=Request+${status.toLowerCase()}`);
-    } catch (error) {
-        console.error('Error resolving request:', error);
-        res.redirect(`/admin/request/${req.params.id}?error=${encodeURIComponent(error.message)}`);
-    }
-});
-
-// Add this route in web.js (replace existing if it exists)
-// In web.js - this route already exists but let's verify it
-app.get('/admin/request/:id', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-        
-        if (!session || !session.user || !session.user.isAdmin) {
-            return res.redirect('/login');
-        }
-
-        const requestId = req.params.id;
-        const request = await business.getRequestDetails(requestId);
-        
-        // Render the HOD-specific view details template
-        res.render('hod_viewdetails', {
-            layout: false,
-            request: request,
-            helpers: {
-                formatDate: function(date) {
-                    if (!date) return 'N/A';
-                    const d = new Date(date);
-                    return d.toLocaleString('en-US', {
-                        timeZone: 'Asia/Qatar',
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true
-                    });
-                },
-                eq: function(v1, v2) {
-                    return v1 === v2;
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error fetching admin request details:', error);
-        res.redirect('/admin?error=' + encodeURIComponent(error.message));
     }
 });
 
