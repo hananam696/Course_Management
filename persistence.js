@@ -202,7 +202,6 @@ async function updateRequest(requestId, updateData) {
         );
         return await this.getRequestById(id);
     } catch (error) {
-        console.error('Error in updateRequest:', error);
         throw new Error('Failed to update request');
     }
 }
@@ -321,6 +320,16 @@ async function getRandomPendingRequest() {
  * @param {string} [status='Pending'] - The status to filter by
  * @returns {Promise<Array>} List of requests
  */
+/*
+ * Updates request status and adds resolution notes
+ * @param {string} requestId - The request ID
+ * @param {string} newStatus - 'Approved' or 'Rejected'
+ * @param {string} resolutionNotes - Department head's comments
+ * @returns {Promise<Object>} Updated request
+ */
+
+
+
 async function getRequestsByCategory(category, status = 'Pending') {
     await connectDatabase();
     return db.collection("requests")
@@ -344,13 +353,14 @@ async function getRequestById(requestId) {
     }
 }
 
-/**
+/*
  * Resolves a request with status and notes
  * @param {string} requestId - The request ID
  * @param {string} status - New status (Approved/Cancelled)
  * @param {string} resolutionNotes - Admin's resolution notes
  * @returns {Promise<boolean>} True if update was successful
  */
+
 async function resolveRequest(requestId, status, resolutionNotes) {
     await connectDatabase();
     console.log('[Persistence] Updating request:', requestId);
