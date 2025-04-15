@@ -354,6 +354,8 @@ async function resolveRequest(requestId, newStatus, resolutionNotes) {
     return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
 }
 
+
+
 module.exports = {
     findUserByUsername,
     createUser,

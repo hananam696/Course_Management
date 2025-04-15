@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <title>{{title}} | Admin Dashboard</title>
+  <link rel="stylesheet" href="/vendors/simplebar/css/simplebar.css">
+  <link rel="stylesheet" href="/css/vendors/simplebar.css">
+  <link href="/css/style.css" rel="stylesheet">
+  <style>
+    /* Sidebar styling */
+    .sidebar {
+      background-color: #343a40;
+      color: white;
+      width: 250px;
+      min-height: 100vh;
+      position: fixed;
+      transition: width 0.3s;
+    }
+    .sidebar-brand {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-weight: 600;
+    }
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+    .nav-link {
+      color: rgba(255,255,255,0.8);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .nav-link:hover {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    .nav-link.active {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+    }
+    .nav-icon {
+      margin-right: 0.5rem;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Main content area */
+    .main-content {
+      margin-left: 250px;
+      padding: 1.5rem;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      transition: margin-left 0.3s;
+    }
+
+    /* Request cards */
+    .request-card {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .card-header {
+      background-color: #f8f9fa;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Request items */
+    .request-item {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .request-item:last-child {
+      border-bottom: none;
+    }
+    .request-info {
+      flex: 1;
+    }
+    .request-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .request-meta {
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+    .badge-warning {
+      background-color: #ffc107;
+      color: #000;
+    }
+    .badge-success {
+      background-color: #28a745;
+    }
+    .badge-danger {
+      background-color: #dc3545;
+    }
+
+    /* Mobile sidebar toggle */
+    .sidebar-toggle {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 0;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .sidebar-toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <h4>Admin Dashboard</h4>
+    </div>
+    <ul class="sidebar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="/admin">
+          <svg class="nav-icon">
+            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-speedometer"></use>
+          </svg>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/admin/users">
+          <svg class="nav-icon">
+            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-people"></use>
+          </svg>
+          Manage Users
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="/admin/requests">
+          <svg class="nav-icon">
+            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-list-rich"></use>
+          </svg>
+          All Requests
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">
+          <svg class="nav-icon">
+            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-account-logout"></use>
+          </svg>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{categoryLabel}} Requests</h1>
+        <a href="/admin" class="btn btn-secondary">
+          <svg class="icon me-1">
+            <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-arrow-left"></use>
+          </svg>
+          Back to Dashboard
+        </a>
+      </div>
+
+      <div class="request-card">
+        <div class="card-header">
+          <h5 class="mb-0">Pending Requests</h5>
+          <span class="badge bg-primary">{{requests.length}} pending</span>
+        </div>
+        <div class="card-body">
+          {{#if (eq requests.length 0)}}
+            <div class="alert alert-info mb-0">
+              No pending requests in this queue.
+            </div>
+          {{else}}
+            {{#each requests}}
+              <div class="request-item">
+                <div class="request-info">
+                  <div class="request-title">{{this.title}}</div>
+                  <div class="request-meta">
+                    <span>{{this.student.name}}</span> •
+                    <span>{{formatDate this.createdAt}}</span> •
+                    <span class="badge bg-{{#if (eq this.status 'Pending')}}warning{{else if (eq this.status 'Approved')}}success{{else}}danger{{/if}}">
+                      {{this.status}}
+                    </span>
+                  </div>
+                </div>
+                <div class="request-actions">
+                  <a href="/admin/request/{{this._id}}" class="btn btn-sm btn-primary">
+                    <svg class="icon me-1">
+                      <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-description"></use>
+                    </svg>
+                    View
+                  </a>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Toggle -->
+  <button class="sidebar-toggle btn btn-dark">
+    <svg width="20" height="20">
+      <use xlink:href="/vendors/@coreui/icons/svg/free.svg#cil-menu"></use>
+    </svg>
+  </button>
+
+  <!-- JavaScript Libraries -->
+  <script src="/vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+  <script src="/vendors/simplebar/js/simplebar.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile sidebar toggle
+      const sidebarToggle = document.querySelector('.sidebar-toggle');
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.main-content');
+
+      if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+          const isOpen = sidebar.style.width === '250px' || sidebar.style.width === '';
+
+          if (isOpen) {
+            sidebar.style.width = '0';
+            mainContent.style.marginLeft = '0';
+          } else {
+            sidebar.style.width = '250px';
+            mainContent.style.marginLeft = '250px';
+          }
+        });
+      }
+
+      // Auto-close sidebar on mobile when clicking a link
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth < 768) {
+            sidebar.style.width = '0';
+            mainContent.style.marginLeft = '0';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
