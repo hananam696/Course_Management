@@ -378,7 +378,8 @@ async function getCancelledRequests(email, semester = null) {
  * @param {string} userEmail - The email of the user making the request.
  * @returns {Promise<Object>} - The request details.
  */
-async function getRequestDetails(requestId, userEmail) {
+// In business.js
+async function getRequestDetails(requestId, userEmail = null) {
     try {
         const request = await persistence.getRequestById(requestId);
 
@@ -386,12 +387,12 @@ async function getRequestDetails(requestId, userEmail) {
             throw new Error('Request not found');
         }
 
-        if (request.studentEmail !== userEmail) {
+        // Only check ownership if userEmail is provided (for student views)
+        if (userEmail && request.studentEmail !== userEmail) {
             throw new Error('Unauthorized access to request');
         }
 
-        // Create a new object with all the properties manually
-        const requestDetails = {
+        return {
             _id: request._id.toString(),
             studentEmail: request.studentEmail,
             studentName: request.studentName,
@@ -402,15 +403,15 @@ async function getRequestDetails(requestId, userEmail) {
             createdAt: request.createdAt,
             estimatedTime: request.estimatedTime,
             cancelledAt: request.cancelledAt,
-
+            resolutionNotes: request.resolutionNotes
         };
-
-        return requestDetails;
     } catch (error) {
         console.error('Error in getRequestDetails:', error);
         throw error;
     }
 }
+
+
 async function getDashboardQueues() {
     try {
         const categoryCounts = await persistence.getPendingRequestCountsByCategory();
@@ -485,12 +486,15 @@ function getStatusClass(status) {
 }
 
 
+
+
+
 async function resolveRequest(requestId, newStatus, resolutionNotes) {
     await connectDatabase();
     const updateData = {
         status: newStatus,
         resolvedAt: new Date(),
-        resolution: resolutionNotes,
+        resolutionNotes: resolutionNotes,
         updatedAt: new Date()
     };
 

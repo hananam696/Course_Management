@@ -582,7 +582,7 @@ app.get('/admin/queue/:category', async (req, res) => {
     }
 });
 
-// Add this route to web.js
+// Add this route in web.js for handling approve/reject
 app.post('/admin/request/:id/resolve', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -610,7 +610,8 @@ app.post('/admin/request/:id/resolve', async (req, res) => {
     }
 });
 
-// Add this route to view admin request details
+// Add this route in web.js (replace existing if it exists)
+// In web.js - this route already exists but let's verify it
 app.get('/admin/request/:id', async (req, res) => {
     try {
         const sessionKey = req.cookies.sessionKey;
@@ -623,10 +624,10 @@ app.get('/admin/request/:id', async (req, res) => {
         const requestId = req.params.id;
         const request = await business.getRequestDetails(requestId);
         
-        res.render('view_details', {
+        // Render the HOD-specific view details template
+        res.render('hod_viewdetails', {
             layout: false,
             request: request,
-            isAdmin: true,
             helpers: {
                 formatDate: function(date) {
                     if (!date) return 'N/A';
@@ -651,9 +652,6 @@ app.get('/admin/request/:id', async (req, res) => {
         res.redirect('/admin?error=' + encodeURIComponent(error.message));
     }
 });
-
-
-
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));

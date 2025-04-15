@@ -339,6 +339,8 @@ async function getRandomPendingRequest() {
  * @param {string} resolutionNotes - Department head's comments
  * @returns {Promise<Object>} Updated request
  */
+
+/*
 async function resolveRequest(requestId, newStatus, resolutionNotes) {
     await connectDatabase();
     const updateData = {
@@ -354,6 +356,8 @@ async function resolveRequest(requestId, newStatus, resolutionNotes) {
 
     return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
 }
+*/
+
 
 /**
  * Gets all requests by category with status filtering
@@ -383,6 +387,25 @@ async function getRequestById(requestId) {
         throw new Error('Invalid request ID');
     }
 }
+
+async function resolveRequest(requestId, newStatus, resolutionNotes) {
+    await connectDatabase();
+    const updateData = {
+        status: newStatus,
+        resolvedAt: new Date(),
+        resolutionNotes: resolutionNotes,
+        updatedAt: new Date()
+    };
+
+    await db.collection("requests").updateOne(
+        { _id: new ObjectId(requestId) },
+        { $set: updateData }
+    );
+
+    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+}
+
+
 
 module.exports = {
     findUserByUsername,
