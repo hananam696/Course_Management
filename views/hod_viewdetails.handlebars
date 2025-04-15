@@ -89,12 +89,17 @@
           <h5>Resolution</h5>
           <form action="/admin/request/{{request._id}}/resolve" method="POST">
             <div class="mb-3">
-              <label for="resolutionNotes" class="form-label">Notes:</label>
-              <textarea class="form-control" id="resolutionNotes" name="resolutionNotes" rows="3" required></textarea>
+              {{!-- <label for="resolutionNotes" class="form-label">Notes:</label>
+              <textarea class="form-control" id="resolutionNotes" name="resolutionNotes" rows="3" required></textarea> --}}
             </div>
             <div class="d-flex justify-content-between">
-              <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
-              <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+              <form action="/admin/request/{{request._id}}/resolve" method="POST">
+  <textarea name="resolutionNotes" required></textarea>
+  <button type="submit" name="action" value="approve">Approve</button>
+  <button type="submit" name="action" value="reject">Reject</button>
+</form>
+              {{!-- <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+              <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button> --}}
             </div>
           </form>
         </div>

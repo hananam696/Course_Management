@@ -388,21 +388,70 @@ async function getRequestById(requestId) {
     }
 }
 
-async function resolveRequest(requestId, newStatus, resolutionNotes) {
+// Add this method to update request status and resolution notes
+// Add/update these methods in persistence.js
+
+/**
+ * Resolves a request with status and notes
+ * @param {string} requestId - The request ID
+ * @param {string} status - New status (Approved/Cancelled)
+ * @param {string} resolutionNotes - Admin's resolution notes
+ * @returns {Promise<boolean>} True if update was successful
+ */
+// async function resolveRequest(requestId, status, resolutionNotes) {
+//     await connectDatabase();
+
+//     const updateData = {
+//         status: status,
+//         resolutionNotes: resolutionNotes,
+//         resolvedAt: new Date(),
+//         updatedAt: new Date()
+//     };
+
+//     const result = await db.collection("requests").updateOne(
+//         { _id: new ObjectId(requestId) },
+//         { $set: updateData }
+//     );
+
+//     return result.modifiedCount === 1;
+// }
+
+async function resolveRequest(requestId, status, resolutionNotes) {
     await connectDatabase();
+    console.log('[Persistence] Updating request:', requestId);
+
     const updateData = {
-        status: newStatus,
-        resolvedAt: new Date(),
+        status: status,
         resolutionNotes: resolutionNotes,
+        resolvedAt: new Date(),
         updatedAt: new Date()
     };
 
-    await db.collection("requests").updateOne(
+    console.log('Update data:', updateData);
+
+    const result = await db.collection("requests").updateOne(
         { _id: new ObjectId(requestId) },
         { $set: updateData }
     );
 
-    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+    console.log('MongoDB result:', result);
+    return result.modifiedCount === 1;
+}
+
+/**
+ * Gets request details including resolution info
+ * @param {string} requestId - The request ID
+ * @returns {Promise<Object>} Request document
+ */
+async function getRequestDetails(requestId) {
+    await connectDatabase();
+    try {
+        const oid = ObjectId.isValid(requestId) ? new ObjectId(requestId) : requestId;
+        return await db.collection('requests').findOne({ _id: oid });
+    } catch (error) {
+        console.error('Error in getRequestDetails:', error);
+        throw new Error('Invalid request ID');
+    }
 }
 
 
@@ -431,5 +480,6 @@ module.exports = {
     getPendingRequestCountsByCategory,
     resolveRequest,
     getRequestsByCategory,
-    getRequestById
+    getRequestById,
+    getRequestDetails
 };

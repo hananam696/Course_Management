@@ -489,21 +489,125 @@ function getStatusClass(status) {
 
 
 
-async function resolveRequest(requestId, newStatus, resolutionNotes) {
-    await connectDatabase();
-    const updateData = {
-        status: newStatus,
-        resolvedAt: new Date(),
-        resolutionNotes: resolutionNotes,
-        updatedAt: new Date()
-    };
+// async function resolveRequest(requestId, newStatus, resolutionNotes) {
+//     await connectDatabase();
+//     const updateData = {
+//         status: newStatus,
+//         resolvedAt: new Date(),
+//         resolutionNotes: resolutionNotes,
+//         updatedAt: new Date()
+//     };
 
-    await db.collection("requests").updateOne(
-        { _id: new ObjectId(requestId) },
-        { $set: updateData }
-    );
+//     await db.collection("requests").updateOne(
+//         { _id: new ObjectId(requestId) },
+//         { $set: updateData }
+//     );
 
-    return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+//     return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
+// }
+
+// async function resolveRequest(requestId, status, resolutionNotes) {
+//     try {
+//         // 1. Validate status
+//         if (!['Approved', 'Cancelled'].includes(status)) {
+//             throw new Error('Invalid status value');
+//         }
+
+//         // 2. Update request in persistence
+//         const updated = await persistence.resolveRequest(
+//             requestId,
+//             status,
+//             resolutionNotes
+//         );
+
+//         if (!updated) {
+//             throw new Error('Failed to update request status');
+//         }
+
+//         // 3. Get updated request details
+//         const request = await persistence.getRequestById(requestId);
+//         if (!request) {
+//             throw new Error('Request not found after update');
+//         }
+
+//         // 4. Send notification email (simulated)
+//         await this.sendStatusEmail(
+//             request.studentEmail,
+//             status,
+//             resolutionNotes
+//         );
+
+//         return {
+//             ...request,
+//             _id: request._id.toString() // Ensure ID is string for consistency
+//         };
+//     } catch (error) {
+//         console.error('Error in resolveRequest:', error);
+//         throw error; // Re-throw for route handler
+//     }
+// }
+
+async function resolveRequest(requestId, status, resolutionNotes) {
+    try {
+        console.log('[Business Layer] Resolving request:', {
+            requestId,
+            status,
+            resolutionNotes
+        });
+
+        // 1. First verify the request exists
+        const existingRequest = await persistence.getRequestById(requestId);
+        if (!existingRequest) {
+            throw new Error('Request not found');
+        }
+        console.log('Existing status:', existingRequest.status);
+
+        // 2. Update in persistence
+        const updateSuccess = await persistence.resolveRequest(
+            requestId,
+            status,
+            resolutionNotes
+        );
+        console.log('Persistence update success:', updateSuccess);
+
+        // 3. Verify update
+        const updatedRequest = await persistence.getRequestById(requestId);
+        console.log('Updated status:', updatedRequest.status);
+
+        if (updatedRequest.status !== status) {
+            throw new Error('Status update verification failed');
+        }
+
+        // 4. Send notification
+        console.log('Sending notification...');
+        await this.sendStatusEmail(
+            updatedRequest.studentEmail,
+            status,
+            resolutionNotes
+        );
+
+        return updatedRequest;
+    } catch (error) {
+        console.error('[Business Layer Error]', error);
+        throw error;
+    }
+}
+
+/**
+ * Simulates sending status email (logs to console)
+ * @param {string} email - Recipient email
+ * @param {string} status - 'Approved' or 'Cancelled'
+ * @param {string} notes - Resolution notes
+ */
+async function sendStatusEmail(email, status, notes) {
+    console.log('\n=== EMAIL NOTIFICATION ===');
+    console.log(`To: ${email}`);
+    console.log(`Subject: Your request has been ${status}`);
+    console.log(`Body:`);
+    console.log(`Dear Student,\n\nYour request has been ${status}.`);
+    if (notes) console.log(`\nAdministrator Notes: ${notes}`);
+    console.log('=========================\n');
+    return true; // Simulate successful send
 }
 
 module.exports = {
@@ -527,5 +631,6 @@ module.exports = {
     getRequestDetails,
     getDashboardQueues,
     getQueueRequests,
-    resolveRequest
+    resolveRequest,
+    sendStatusEmail
 };

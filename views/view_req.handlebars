@@ -6,6 +6,14 @@
   <title>My Requests | Student Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+
+  .badge-approved {
+    background-color: #198754; /* Green for approved */
+    color: #fff;
+  }
+
+</style>
 <body>
   <!-- Navigation (same as your other pages) -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -64,7 +72,16 @@
               <tr>
                 <td>{{add @index 1}}</td>
                 <td>{{this.category}}</td>
-                <td><span class="badge bg-warning">Pending</span></td>
+                {{!-- <td><span class="badge bg-warning">Pending</span></td> --}}
+                <td>
+  {{#if (eq this.status 'Approved')}}
+    <span class="badge badge-approved">Approved</span>
+  {{else if (eq this.status 'Cancelled')}}
+    <span class="badge badge-cancelled">Cancelled</span>
+  {{else}}
+    <span class="badge bg-warning">Pending</span>
+  {{/if}}
+</td>
                 <td>{{formatDate this.createdAt}}</td>
                 <td>{{formatDate this.estimatedTime}}</td>
                 <td>

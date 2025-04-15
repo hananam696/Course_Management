@@ -540,23 +540,318 @@ app.get('/request/details/:id', async (req, res) => {
  * Shows all requests in a specific category queue
  */
 // Fix the route by adding the leading slash
-app.get('/admin/queue/:category', async (req, res) => {
+// app.get('/admin/queue/:category', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session || !session.user || !session.user.isAdmin) {
+//             return res.redirect('/login');
+//         }
+
+//         const category = req.params.category;
+//         const requests = await business.getQueueRequests(category);
+
+//         res.render('request_queue', {
+//             layout: false,
+//             title: `${category} Requests`,
+//             category: category,
+//             requests: requests,
+//             helpers: {
+//                 formatDate: function(date) {
+//                     if (!date) return 'N/A';
+//                     return new Date(date).toLocaleString('en-US', {
+//                         timeZone: 'Asia/Qatar',
+//                         weekday: 'long',
+//                         month: 'long',
+//                         day: 'numeric',
+//                         hour: '2-digit',
+//                         minute: '2-digit',
+//                         hour12: true
+//                     });
+//                 }
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Error loading queue:', error);
+//         res.status(500).render('error', {
+//             layout: false,
+//             message: 'Failed to load queue',
+//             error: error
+//         });
+//     }
+// });
+
+// // Add this route in web.js for handling approve/reject
+// app.post('/admin/request/:id/resolve', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session || !session.user || !session.user.isAdmin) {
+//             return res.redirect('/login');
+//         }
+
+//         const requestId = req.params.id;
+//         const { action, resolutionNotes } = req.body;
+
+//         if (!['approve', 'reject'].includes(action)) {
+//             throw new Error('Invalid action');
+//         }
+
+//         const status = action === 'approve' ? 'Approved' : 'Rejected';
+
+//         await business.resolveRequest(requestId, status, resolutionNotes);
+
+//         res.redirect(`/admin/request/${requestId}?success=Request+${status.toLowerCase()}`);
+//     } catch (error) {
+//         console.error('Error resolving request:', error);
+//         res.redirect(`/admin/request/${req.params.id}?error=${encodeURIComponent(error.message)}`);
+//     }
+// });
+
+// // Add this route in web.js (replace existing if it exists)
+// // In web.js - this route already exists but let's verify it
+// app.get('/admin/request/:id', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session || !session.user || !session.user.isAdmin) {
+//             return res.redirect('/login');
+//         }
+
+//         const requestId = req.params.id;
+//         const request = await business.getRequestDetails(requestId);
+
+//         // Render the HOD-specific view details template
+//         res.render('hod_viewdetails', {
+//             layout: false,
+//             request: request,
+//             helpers: {
+//                 formatDate: function(date) {
+//                     if (!date) return 'N/A';
+//                     const d = new Date(date);
+//                     return d.toLocaleString('en-US', {
+//                         timeZone: 'Asia/Qatar',
+//                         weekday: 'long',
+//                         month: 'long',
+//                         day: 'numeric',
+//                         hour: '2-digit',
+//                         minute: '2-digit',
+//                         hour12: true
+//                     });
+//                 },
+//                 eq: function(v1, v2) {
+//                     return v1 === v2;
+//                 }
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Error fetching admin request details:', error);
+//         res.redirect('/admin?error=' + encodeURIComponent(error.message));
+//     }
+// });
+
+// // Handle Approve/Reject from Admin Dashboard
+// app.post('/admin/request/:id/resolve', async (req, res) => {
+//     try {
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session?.user?.isAdmin) {
+//             return res.redirect('/login');
+//         }
+
+//         const requestId = req.params.id;
+//         const { action, resolutionNotes } = req.body;
+
+//         // Validate action
+//         if (!['approve', 'reject'].includes(action)) {
+//             throw new Error('Invalid action');
+//         }
+
+//         // Update status (Approved or Cancelled)
+//         const status = action === 'approve' ? 'Approved' : 'Cancelled';
+//         await business.resolveRequest(requestId, status, resolutionNotes);
+
+//         // Redirect back to the request's queue
+//         const request = await business.getRequestDetails(requestId);
+//         res.redirect(`/admin/queue/${request.category}?success=Request+${status}`);
+//     } catch (error) {
+//         console.error('Error resolving request:', error);
+//         res.redirect(`/admin/request/${req.params.id}?error=${error.message}`);
+//     }
+// });
+
+/**
+ * Handles request resolution (approve/reject) from admin dashboard
+ * @route POST /admin/request/:id/resolve
+ */
+// app.post('/admin/request/:id/resolve', async (req, res) => {
+//     try {
+//         // 1. Authentication and authorization
+//         const sessionKey = req.cookies.sessionKey;
+//         const session = await business.getSessionData(sessionKey);
+
+//         if (!session?.user?.isAdmin) {
+//             return res.redirect('/login');
+//         }
+
+//         // 2. Input validation
+//         const requestId = req.params.id;
+//         const { action, resolutionNotes } = req.body;
+
+//         if (!['approve', 'reject'].includes(action)) {
+//             return res.status(400).json({ error: 'Invalid action' });
+//         }
+
+//         // 3. Process resolution
+//         const status = action === 'approve' ? 'Approved' : 'Cancelled';
+//         const request = await business.resolveRequest(
+//             requestId,
+//             status,
+//             resolutionNotes || 'No notes provided'
+//         );
+
+//         // 4. Return success response
+//         res.send(`
+//             <script>
+//                 alert("Request ${status}! Notification sent to student.");
+//                 window.location.href = "/admin/queue/${request.category}";
+//             </script>
+//         `);
+
+//     } catch (error) {
+//         console.error('Error resolving request:', error);
+
+//         // Determine redirect based on available info
+//         let redirectUrl = '/admin';
+//         try {
+//             const request = await business.getRequestDetails(req.params.id);
+//             if (request) redirectUrl = `/admin/request/${req.params.id}`;
+//         } catch (e) {}
+
+//         res.redirect(`${redirectUrl}?error=${encodeURIComponent(error.message)}`);
+//     }
+// });
+
+app.post('/admin/request/:id/resolve', async (req, res) => {
     try {
+        console.log('--- STARTING RESOLUTION ---');
+        console.log('Request ID:', req.params.id);
+        console.log('Action:', req.body.action);
+        console.log('Notes:', req.body.resolutionNotes);
+
         const sessionKey = req.cookies.sessionKey;
         const session = await business.getSessionData(sessionKey);
-        
-        if (!session || !session.user || !session.user.isAdmin) {
+        console.log('Session valid?', !!session?.user?.isAdmin);
+
+        if (!session?.user?.isAdmin) return res.redirect('/login');
+
+        const { action, resolutionNotes } = req.body;
+        if (!['approve', 'reject'].includes(action)) {
+            throw new Error('Invalid action');
+        }
+
+        const status = action === 'approve' ? 'Approved' : 'Cancelled';
+        console.log('Attempting to update status to:', status);
+
+        const request = await business.resolveRequest(
+            req.params.id,
+            status,
+            resolutionNotes || "No notes provided"
+        );
+
+        console.log('Update result:', request);
+        console.log('--- RESOLUTION COMPLETE ---');
+
+        res.send(`<script>
+            alert("Request ${status} successfully!");
+            window.location.href = "/admin/request/${req.params.id}";
+        </script>`);
+    } catch (error) {
+        console.error('FULL ERROR:', error);
+        res.redirect(`/admin/request/${req.params.id}?error=${encodeURIComponent(error.message)}`);
+    }
+});
+/**
+ * Shows request details for admin resolution
+ * @route GET /admin/request/:id
+ */
+app.get('/admin/request/:id', async (req, res) => {
+    try {
+        // 1. Authentication and authorization
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session?.user?.isAdmin) {
             return res.redirect('/login');
         }
 
+        // 2. Get request details
+        const request = await business.getRequestDetails(req.params.id);
+        if (!request) {
+            throw new Error('Request not found');
+        }
+
+        // 3. Render admin view
+        res.render('hod_viewdetails', {
+            layout: false,
+            request: request,
+            success: req.query.success,
+            error: req.query.error,
+            helpers: {
+                formatDate: function(date) {
+                    if (!date) return 'N/A';
+                    return new Date(date).toLocaleString('en-US', {
+                        timeZone: 'Asia/Qatar',
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                },
+                eq: function(v1, v2) {
+                    return v1 === v2;
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error loading admin request view:', error);
+        res.redirect(`/admin?error=${encodeURIComponent(error.message)}`);
+    }
+});
+
+/**
+ * Shows requests queue by category
+ * @route GET /admin/queue/:category
+ */
+app.get('/admin/queue/:category', async (req, res) => {
+    try {
+        // 1. Authentication and authorization
+        const sessionKey = req.cookies.sessionKey;
+        const session = await business.getSessionData(sessionKey);
+
+        if (!session?.user?.isAdmin) {
+            return res.redirect('/login');
+        }
+
+        // 2. Get queue requests
         const category = req.params.category;
         const requests = await business.getQueueRequests(category);
 
+        // 3. Render queue view
         res.render('request_queue', {
             layout: false,
             title: `${category} Requests`,
             category: category,
             requests: requests,
+            success: req.query.success,
+            error: req.query.error,
             helpers: {
                 formatDate: function(date) {
                     if (!date) return 'N/A';
@@ -572,6 +867,7 @@ app.get('/admin/queue/:category', async (req, res) => {
                 }
             }
         });
+
     } catch (error) {
         console.error('Error loading queue:', error);
         res.status(500).render('error', {
@@ -581,77 +877,5 @@ app.get('/admin/queue/:category', async (req, res) => {
         });
     }
 });
-
-// Add this route in web.js for handling approve/reject
-app.post('/admin/request/:id/resolve', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-        
-        if (!session || !session.user || !session.user.isAdmin) {
-            return res.redirect('/login');
-        }
-
-        const requestId = req.params.id;
-        const { action, resolutionNotes } = req.body;
-        
-        if (!['approve', 'reject'].includes(action)) {
-            throw new Error('Invalid action');
-        }
-
-        const status = action === 'approve' ? 'Approved' : 'Rejected';
-        
-        await business.resolveRequest(requestId, status, resolutionNotes);
-        
-        res.redirect(`/admin/request/${requestId}?success=Request+${status.toLowerCase()}`);
-    } catch (error) {
-        console.error('Error resolving request:', error);
-        res.redirect(`/admin/request/${req.params.id}?error=${encodeURIComponent(error.message)}`);
-    }
-});
-
-// Add this route in web.js (replace existing if it exists)
-// In web.js - this route already exists but let's verify it
-app.get('/admin/request/:id', async (req, res) => {
-    try {
-        const sessionKey = req.cookies.sessionKey;
-        const session = await business.getSessionData(sessionKey);
-        
-        if (!session || !session.user || !session.user.isAdmin) {
-            return res.redirect('/login');
-        }
-
-        const requestId = req.params.id;
-        const request = await business.getRequestDetails(requestId);
-        
-        // Render the HOD-specific view details template
-        res.render('hod_viewdetails', {
-            layout: false,
-            request: request,
-            helpers: {
-                formatDate: function(date) {
-                    if (!date) return 'N/A';
-                    const d = new Date(date);
-                    return d.toLocaleString('en-US', {
-                        timeZone: 'Asia/Qatar',
-                        weekday: 'long',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true
-                    });
-                },
-                eq: function(v1, v2) {
-                    return v1 === v2;
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error fetching admin request details:', error);
-        res.redirect('/admin?error=' + encodeURIComponent(error.message));
-    }
-});
-
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
