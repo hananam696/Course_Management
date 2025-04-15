@@ -354,8 +354,22 @@ async function resolveRequest(requestId, newStatus, resolutionNotes) {
     return db.collection("requests").findOne({ _id: new ObjectId(requestId) });
 }
 
-
-
+/**
+ * Gets all requests by category with status filtering
+ * @param {string} category - The request category
+ * @param {string} [status='Pending'] - The status to filter by
+ * @returns {Promise<Array>} List of requests
+ */
+async function getRequestsByCategory(category, status = 'Pending') {
+    await connectDatabase();
+    return db.collection("requests")
+        .find({
+            category: category,
+            status: status
+        })
+        .sort({ createdAt: 1 }) // Oldest first
+        .toArray();
+}
 module.exports = {
     findUserByUsername,
     createUser,
@@ -380,5 +394,6 @@ module.exports = {
     getPendingRequestCount,
     getPendingRequestCountsByCategory,
     getRandomPendingRequest,
-    resolveRequest
+    resolveRequest,
+    getRequestsByCategory
 };

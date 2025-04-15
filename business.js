@@ -449,6 +449,42 @@ async function getDashboardQueues() {
     }
 }
 
+
+/**
+ * Gets all requests in a specific category/queue
+ * @param {string} category - The request category/queue name
+ * @returns {Promise<Array>} List of requests in the queue
+ */
+async function getQueueRequests(category) {
+    try {
+        // Convert category name to match database format if needed
+        const dbCategory = category.replace(' ', '_');
+        const requests = await persistence.getRequestsByCategory(dbCategory);
+
+        // Format the data for presentation
+        return requests.map(request => ({
+            ...request,
+            formattedDate: formatDate(request.createdAt),
+            statusClass: getStatusClass(request.status)
+        }));
+    } catch (error) {
+        console.error(`Error getting queue requests for ${category}:`, error);
+        throw new Error('Failed to get queue requests');
+    }
+}
+
+
+
+// Helper function to get CSS class for status
+function getStatusClass(status) {
+    const statusClasses = {
+        'Pending': 'warning',
+        'Approved': 'success',
+        'Cancelled': 'danger'
+    };
+    return statusClasses[status] || 'secondary';
+}
+
 module.exports = {
     registerUser,
     activateUser,
@@ -468,5 +504,6 @@ module.exports = {
     cancelRequest,
     getCancelledRequests,
     getRequestDetails,
-    getDashboardQueues
+    getDashboardQueues,
+    getQueueRequests
 };

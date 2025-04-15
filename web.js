@@ -421,7 +421,7 @@ app.get('/student/requests', async (req, res) => {
         res.render('view_req', {
             layout: false,
             userRequests,
-            selectedSemester: semester === 'all-2025' || !semester,
+            selectedSemester: semester,
             message: semester && semester !== 'all-2025'
                 ? `Showing ${semester} requests`
                 : 'Showing all active requests'
@@ -534,6 +534,29 @@ app.get('/request/details/:id', async (req, res) => {
     }
 });
 
+
+/**
+ * GET /admin/queue/:category
+ * Shows all requests in a specific category queue
+ */
+app.get('admin/queue/:category', async (req, res) => {
+    try {
+        const category = req.params.category;
+        const requests = await requestService.getQueueRequests(category);
+
+        res.render('request_queue', {
+            title: `${category} Queue`,
+            categoryLabel: category,
+            requests: requests
+        });
+    } catch (error) {
+        console.error('Error loading queue:', error);
+        res.status(500).render('error', {
+            message: 'Failed to load queue',
+            error: error
+        });
+    }
+});
 
 // Start the server on port 8000
 app.listen(8000, () => console.log('Server running on http://localhost:8000'));
